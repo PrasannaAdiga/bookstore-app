@@ -27,8 +27,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8083/auth/realms/baeldung
-          jwk-set-uri: http://localhost:8083/auth/realms/baeldung/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8083/auth/realms/Bookstore
+          jwk-set-uri: http://localhost:8083/auth/realms/Bookstore/protocol/openid-connect/certs
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     database: h2

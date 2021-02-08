@@ -21,7 +21,7 @@ import java.io.IOException;
 @Validated
 public interface IProductImageController {
     @PostMapping(value = "images/upload", params = "imageFile")
-    @PreAuthorize("hasAnyRole('read','write')")
+    @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Create or update a product image", responses = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
@@ -33,7 +33,7 @@ public interface IProductImageController {
                                           MultipartFile file) throws IOException;
 
     @GetMapping(path = "images/{id}")
-    @PreAuthorize("hasAnyRole('read','write')")
+    @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Get an image of a product", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),

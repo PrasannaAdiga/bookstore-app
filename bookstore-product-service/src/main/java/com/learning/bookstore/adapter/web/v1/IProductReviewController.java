@@ -22,7 +22,7 @@ import javax.validation.constraints.NotBlank;
 @Validated
 public interface IProductReviewController {
     @PostMapping("/reviews")
-    @PreAuthorize("hasAnyRole('read','write')")
+    @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Create or update a product review", responses = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
@@ -31,7 +31,7 @@ public interface IProductReviewController {
     ResponseEntity<?> createOrUpdateReview(@RequestBody @Valid CreateOrUpdateReviewRequest createOrUpdateReviewRequest);
 
     @GetMapping("/{id}/reviews")
-    @PreAuthorize("hasAnyRole('read','write')")
+    @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Get all reviews for a product", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductReviewResponse.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),

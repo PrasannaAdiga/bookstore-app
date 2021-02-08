@@ -23,7 +23,7 @@ import javax.validation.constraints.NotBlank;
 @Validated
 public interface IProductController {
     @PostMapping
-    @PreAuthorize("hasRole('write')")
+    @PreAuthorize("hasRole('Admin')")
     @Operation(summary = "Create a new product", responses = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
             @ApiResponse(responseCode = "302", description = "Product already exists", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
@@ -34,7 +34,7 @@ public interface IProductController {
     ResponseEntity<?> createProduct(@RequestBody @Valid CreateProductRequest createProductRequest);
 
     @PutMapping
-    @PreAuthorize("hasRole('write')")
+    @PreAuthorize("hasRole('Admin')")
     @Operation(summary = "Update an existing product", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
@@ -45,7 +45,7 @@ public interface IProductController {
     ResponseEntity<?> updateProduct(@RequestBody @Valid UpdateProductRequest updateProductRequest);
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('write')")
+    @PreAuthorize("hasRole('Admin')")
     @Operation(summary = "Delete an existing product", responses = {
             @ApiResponse(responseCode = "204", description = "Deleted", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
@@ -59,7 +59,7 @@ public interface IProductController {
                                                 String id);
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('read','write')")
+    @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Get a product by id", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductResponse.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
@@ -72,7 +72,7 @@ public interface IProductController {
                                                            String id);
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('read','write')")
+    @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Get all products", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductResponse.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),

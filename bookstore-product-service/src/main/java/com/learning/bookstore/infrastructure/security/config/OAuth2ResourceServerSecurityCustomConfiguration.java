@@ -1,8 +1,11 @@
 package com.learning.bookstore.infrastructure.security.config;
 
+import com.learning.bookstore.infrastructure.config.keycloak.KeycloakRealmRoleConverter;
 import com.learning.bookstore.infrastructure.security.RestAccessDeniedErrorHandler;
 import com.learning.bookstore.infrastructure.security.RestUnAuthorizedErrorHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
@@ -13,12 +16,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-
-import java.util.Collection;
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +29,10 @@ public class OAuth2ResourceServerSecurityCustomConfiguration extends WebSecurity
     private final RestUnAuthorizedErrorHandler restUnAuthorizedErrorHandler;
     private final RestAccessDeniedErrorHandler restAccessDeniedErrorHandler;
     private static final String AUTHORITY_PREFIX = "ROLE_";
-    private static final String CLAIM_ROLES = "scope";
+    private static final String CLAIM_ROLES = "roles";
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    private String jwkSetUri;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -40,29 +44,27 @@ public class OAuth2ResourceServerSecurityCustomConfiguration extends WebSecurity
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeRequests(authorize -> authorize
-                        .mvcMatchers(HttpMethod.GET, "/actuator/**").hasRole("write")
+                        .mvcMatchers(HttpMethod.GET, "/actuator/**").hasRole("ADMIN")
                         .mvcMatchers(HttpMethod.GET, "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2ResourceServer ->
-                        oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter()))
+                        oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 )
                 .exceptionHandling()
                 .accessDeniedHandler(restAccessDeniedErrorHandler)
                 .authenticationEntryPoint(restUnAuthorizedErrorHandler); // To handle 401 Unauthorized exception
     }
 
-    private Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(getJwtGrantedAuthoritiesConverter());
-        return jwtAuthenticationConverter;
+    private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
+        JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+        jwtConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRealmRoleConverter());
+        return jwtConverter;
     }
 
-    private Converter<Jwt, Collection<GrantedAuthority>> getJwtGrantedAuthoritiesConverter() {
-        JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
-        converter.setAuthorityPrefix(AUTHORITY_PREFIX);
-        converter.setAuthoritiesClaimName(CLAIM_ROLES);
-        return converter;
+    @Bean
+    JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
     }
 
 }

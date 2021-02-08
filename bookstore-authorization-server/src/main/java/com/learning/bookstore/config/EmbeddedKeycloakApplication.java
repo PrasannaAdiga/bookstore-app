@@ -35,7 +35,7 @@ public class EmbeddedKeycloakApplication extends KeycloakApplication {
 
         createMasterRealmAdminUser();
 
-        createBaeldungRealm();
+        createBookstoreRealm();
     }
 
     private void createMasterRealmAdminUser() {
@@ -61,7 +61,7 @@ public class EmbeddedKeycloakApplication extends KeycloakApplication {
         session.close();
     }
 
-    private void createBaeldungRealm() {
+    private void createBookstoreRealm() {
         KeycloakSession session = getSessionFactory().create();
 
         try {
