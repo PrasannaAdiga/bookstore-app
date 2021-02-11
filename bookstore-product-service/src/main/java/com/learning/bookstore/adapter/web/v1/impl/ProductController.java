@@ -51,7 +51,7 @@ public class ProductController implements IProductController {
 
     @Override
     public ResponseEntity<ProductResponse> getProductById(String id) {
-        return ResponseEntity.ok(productQueryService.getProductById(id));
+        return ResponseEntity.ok().body(productQueryService.getProductById(id));
     }
 
     @Override
