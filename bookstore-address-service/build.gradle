@@ -4,15 +4,9 @@ plugins {
 	id 'java'
 }
 
-group = 'com.learning.bookstore'
+group = 'com.bookstore.learning'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
 
 repositories {
 	mavenCentral()

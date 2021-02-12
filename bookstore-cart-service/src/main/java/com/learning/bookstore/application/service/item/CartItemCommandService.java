@@ -4,7 +4,7 @@ import com.learning.bookstore.adapter.client.ProductFeignClient;
 import com.learning.bookstore.application.exception.ResourceNotFoundException;
 import com.learning.bookstore.application.port.in.cart.ICartQueryService;
 import com.learning.bookstore.application.port.in.item.ICartItemCommandService;
-import com.learning.bookstore.application.port.out.ICartItemDataManager;
+import com.learning.bookstore.application.port.out.ICartItemDataProvider;
 import com.learning.bookstore.application.service.item.response.ProductResponse;
 import com.learning.bookstore.domain.Cart;
 import com.learning.bookstore.domain.CartItem;
@@ -17,17 +17,17 @@ import java.util.Optional;
 @Slf4j
 public class CartItemCommandService implements ICartItemCommandService {
     private final ICartQueryService cartQueryService;
-    private final ICartItemDataManager cartItemDataManager;
+    private final ICartItemDataProvider cartItemDataManager;
     private final ProductFeignClient productFeignClient;
 
     @Override
-    public void createCartItem(String userEmail, CartItem cartItem) {
+    public String createCartItem(String userEmail, CartItem cartItem) {
         Cart cart = cartQueryService.getCartByUserEmail(userEmail);
         exitIfNoCartFound(userEmail, cart);
         ProductResponse productResponse = productFeignClient.getProductById(cartItem.getProductId());
         exitIfNoProductFound(productResponse, cartItem);
         exitIfEnoughQuantityNotFound(productResponse.getAvailableCount(), cartItem.getQuantity());
-        createOrUpdateCartItem(cart, productResponse, cartItem.getQuantity());
+        return createOrUpdateCartItem(cart, productResponse, cartItem.getQuantity());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class CartItemCommandService implements ICartItemCommandService {
                     .quantity(requestedQuantity)
                     .cart(cart)
                     .build();
-            return cartItemDataManager.createCartItem(cItem).getId();
+            return cartItemDataManager.createCartItem(cItem);
         }
         CartItem cartItem = CartItem.builder()
                 .productId(productResponse.getId())
@@ -94,7 +94,7 @@ public class CartItemCommandService implements ICartItemCommandService {
                 .quantity(requestedQuantity)
                 .cart(cart)
                 .build();
-        return cartItemDataManager.createCartItem(cartItem).getId();
+        return cartItemDataManager.createCartItem(cartItem);
     }
 
 }

@@ -14,7 +14,7 @@ public class CartItem {
     private double price;
     private double extendedPrice;
 
-    @NotBlank(message = "productId should not be blank")
+    @NotBlank(message = "ProductId should not be blank")
     private String productId;
 
     @Min(value = 1, message = "Quantity should be greater than 0")

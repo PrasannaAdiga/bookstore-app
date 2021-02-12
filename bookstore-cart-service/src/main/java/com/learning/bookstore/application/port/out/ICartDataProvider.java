@@ -4,7 +4,7 @@ import com.learning.bookstore.domain.Cart;
 
 import java.util.Optional;
 
-public interface ICartDataManager {
+public interface ICartDataProvider {
     String createCart(Cart cart);
     Optional<Cart> getCartByCartId(String cartId);
     Optional<Cart> getCartByUserEmail(String userEmail);

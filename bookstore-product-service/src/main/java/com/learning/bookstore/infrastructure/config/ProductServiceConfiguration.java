@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class BookstoreConfiguration {
+public class ProductServiceConfiguration {
     @Bean
     public ProductCommandService productCommandService(IProductPersistenceAdapter productPersistenceAdapter,
                                                        IProductCategoryPersistenceAdapter productCategoryPersistenceAdapter) {

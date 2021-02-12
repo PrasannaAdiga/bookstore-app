@@ -2,7 +2,7 @@ package com.learning.bookstore.application.service.item;
 
 import com.learning.bookstore.application.exception.ResourceNotFoundException;
 import com.learning.bookstore.application.port.in.item.ICartItemQueryService;
-import com.learning.bookstore.application.port.out.ICartItemDataManager;
+import com.learning.bookstore.application.port.out.ICartItemDataProvider;
 import com.learning.bookstore.domain.CartItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class CartItemQueryService implements ICartItemQueryService {
-    private final ICartItemDataManager cartItemDataManager;
+    private final ICartItemDataProvider cartItemDataManager;
 
     @Override
     public CartItem getCartItem(String cartItemId) {

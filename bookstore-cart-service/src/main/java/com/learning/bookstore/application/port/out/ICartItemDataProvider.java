@@ -4,9 +4,9 @@ import com.learning.bookstore.domain.CartItem;
 
 import java.util.Optional;
 
-public interface ICartItemDataManager {
-    CartItem createCartItem(CartItem cartItem);
-    CartItem removeCartItem(String cartItemId);
-    CartItem removeAllCartItem(String cartId);
+public interface ICartItemDataProvider {
+    String createCartItem(CartItem cartItem);
+    void removeCartItem(String cartItemId);
+    void removeAllCartItem(String cartId);
     Optional<CartItem> getCartItem(String cartItemId);
 }
