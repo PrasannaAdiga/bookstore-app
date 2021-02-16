@@ -1,4 +1,4 @@
-package com.learning.bookstore.adapter.web.v1.response;
+package com.bookstore.learning.adapter.client.dto;
 
 import lombok.Builder;
 import lombok.Getter;

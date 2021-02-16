@@ -56,7 +56,7 @@ public interface IBillingAddressController {
                                             @NotBlank(message = "Billing address id should not be blank")
                                                     String id);
 
-    @GetMapping("/id")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Get billing address by id", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = BillingAddressResponse.class))),

@@ -43,7 +43,7 @@ public interface IPaymentMethodController {
             security = @SecurityRequirement(name = "bearerAuth"))
     ResponseEntity<List<PaymentMethodResponse>> getAllPaymentMethodOfUser(Jwt principal);
 
-    @GetMapping("/id")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Get a payment method of logged in user by payment method id", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentMethodResponse.class))),
