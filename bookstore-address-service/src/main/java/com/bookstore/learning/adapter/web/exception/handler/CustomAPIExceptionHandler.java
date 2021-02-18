@@ -3,6 +3,7 @@ package com.bookstore.learning.adapter.web.exception.handler;
 import com.bookstore.learning.adapter.web.exception.response.RestApiResponseErrorMessage;
 import com.bookstore.learning.application.exception.ResourceFoundException;
 import com.bookstore.learning.application.exception.ResourceNotFoundException;
+import com.bookstore.learning.application.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,6 +46,17 @@ public class CustomAPIExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
         return new ResponseEntity<>(restApiResponseErrorMessage, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<RestApiResponseErrorMessage> handleUnauthorizedException(final Exception exception, final HttpServletRequest request) {
+        RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error("Unauthorized Exception!")
+                .message(exception.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(restApiResponseErrorMessage, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

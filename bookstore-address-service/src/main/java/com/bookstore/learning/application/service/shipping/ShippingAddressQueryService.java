@@ -1,9 +1,11 @@
 package com.bookstore.learning.application.service.shipping;
 
 import com.bookstore.learning.application.exception.ResourceNotFoundException;
+import com.bookstore.learning.application.exception.UnauthorizedException;
 import com.bookstore.learning.application.port.in.shipping.IShippingAddressQueryService;
 import com.bookstore.learning.application.port.out.IShippingAddressDataProvider;
 import com.bookstore.learning.domain.ShippingAddress;
+import com.bookstore.learning.infrastructure.util.PrincipalResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,24 +16,43 @@ import java.util.Optional;
 @Slf4j
 public class ShippingAddressQueryService implements IShippingAddressQueryService {
     private final IShippingAddressDataProvider shippingAddressDataProvider;
+    private final PrincipalResolver principalResolver;
 
     @Override
-    public List<ShippingAddress> getAllShippingAddressOfUser(String userEmail) {
-        Optional<List<ShippingAddress>> oShippingAddress = shippingAddressDataProvider.getAllShippingAddressOfUser(userEmail);
-        oShippingAddress.orElseThrow(() -> {
-            log.error("ResourceNotFoundException in ShippingAddressQueryService.getAllShippingAddressOfUser: No shipping address found for the user {}", userEmail);
-            throw new ResourceNotFoundException("No shipping address found for the user " + userEmail);
-        });
+    public List<ShippingAddress> getAllShippingAddressOfLoggedInUser() {
+        Optional<List<ShippingAddress>> oShippingAddress = shippingAddressDataProvider.getAllShippingAddressOfUser(principalResolver.getCurrentLoggedInUserMail());
+        exitIfNoShippingAddressFound(oShippingAddress);
         return oShippingAddress.get();
     }
 
     @Override
     public ShippingAddress getShippingAddressById(String shippingAddressId) {
         Optional<ShippingAddress> oShippingAddress = shippingAddressDataProvider.getShippingAddressById(shippingAddressId);
+        exitIfNoShippingAddressFoundForId(oShippingAddress, shippingAddressId);
+        exitIfUnauthorized(oShippingAddress, shippingAddressId);
+        return oShippingAddress.get();
+    }
+
+    private void exitIfNoShippingAddressFound(Optional<List<ShippingAddress>> oShippingAddress) {
+        oShippingAddress.orElseThrow(() -> {
+            log.error("ResourceNotFoundException in ShippingAddressQueryService.getAllShippingAddressOfUser: No shipping address found for the user {}", principalResolver.getCurrentLoggedInUserMail());
+            throw new ResourceNotFoundException("No shipping address found for the user " + principalResolver.getCurrentLoggedInUserMail());
+        });
+    }
+
+    private void exitIfNoShippingAddressFoundForId(Optional<ShippingAddress> oShippingAddress, String shippingAddressId) {
         oShippingAddress.orElseThrow(() -> {
             log.error("ResourceNotFoundException in ShippingAddressQueryService.getShippingAddressById: Shipping Address with id {} not found", shippingAddressId);
             throw new ResourceNotFoundException("Shipping Address with id " + shippingAddressId + " not found!");
         });
-        return oShippingAddress.get();
     }
+
+    private void exitIfUnauthorized(Optional<ShippingAddress> oShippingAddress, String shippingAddressId) {
+        if(!oShippingAddress.get().getUserEmail().equalsIgnoreCase(principalResolver.getCurrentLoggedInUserMail())) {
+            log.error("UnauthorizedException in ShippingAddressQueryService.getShippingAddressById: Shipping Address with id {} is not belong to current logged in user {}",
+                    shippingAddressId, principalResolver.getCurrentLoggedInUserMail());
+            throw new UnauthorizedException("Shipping Address with id " + shippingAddressId + " is not belong to current logged in user " + principalResolver.getCurrentLoggedInUserMail());
+        }
+    }
+
 }

@@ -8,22 +8,18 @@ import com.learning.bookstore.application.port.out.ICartItemDataProvider;
 import com.learning.bookstore.application.service.item.response.ProductResponse;
 import com.learning.bookstore.domain.Cart;
 import com.learning.bookstore.domain.CartItem;
-import com.learning.bookstore.infrastructure.util.PrincipalResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class CartItemCommandService implements ICartItemCommandService {
     private final ICartQueryService cartQueryService;
     private final ICartItemDataProvider cartItemDataManager;
     private final ProductFeignClient productFeignClient;
-    private final PrincipalResolver principalResolver;
 
     @Override
     public String createCartItem(CartItem cartItem) {

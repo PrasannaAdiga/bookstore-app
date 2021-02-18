@@ -5,6 +5,6 @@ import com.bookstore.learning.domain.BillingAddress;
 import java.util.List;
 
 public interface IBillingAddressQueryService {
-    List<BillingAddress> getAllBillingAddressOfUser(String userEmail);
+    List<BillingAddress> getAllBillingAddressOfLoggedInUser();
     BillingAddress getBillingAddressById(String billingAddressId);
 }

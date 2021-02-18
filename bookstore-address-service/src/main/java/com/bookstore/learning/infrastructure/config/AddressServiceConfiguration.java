@@ -8,6 +8,7 @@ import com.bookstore.learning.application.service.billing.BillingAddressCommandS
 import com.bookstore.learning.application.service.billing.BillingAddressQueryService;
 import com.bookstore.learning.application.service.shipping.ShippingAddressCommandService;
 import com.bookstore.learning.application.service.shipping.ShippingAddressQueryService;
+import com.bookstore.learning.infrastructure.util.PrincipalResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,24 +16,28 @@ import org.springframework.context.annotation.Configuration;
 public class AddressServiceConfiguration {
     @Bean
     public BillingAddressCommandService billingAddressCommandService(IBillingAddressDataProvider billingAddressDataProvider,
-                                                           IBillingAddressQueryService billingAddressQueryService) {
-        return new BillingAddressCommandService(billingAddressDataProvider, billingAddressQueryService);
+                                                           IBillingAddressQueryService billingAddressQueryService,
+                                                                     PrincipalResolver principalResolver) {
+        return new BillingAddressCommandService(billingAddressDataProvider, billingAddressQueryService, principalResolver);
     }
 
     @Bean
-    public BillingAddressQueryService billingAddressQueryService(IBillingAddressDataProvider billingAddressDataProvider) {
-        return new BillingAddressQueryService(billingAddressDataProvider);
+    public BillingAddressQueryService billingAddressQueryService(IBillingAddressDataProvider billingAddressDataProvider,
+                                                                 PrincipalResolver principalResolver) {
+        return new BillingAddressQueryService(billingAddressDataProvider, principalResolver);
     }
 
     @Bean
     public ShippingAddressCommandService shippingAddressCommandService(IShippingAddressDataProvider shippingAddressDataProvider,
-                                                                IShippingAddressQueryService shippingAddressQueryService) {
-        return new ShippingAddressCommandService(shippingAddressDataProvider, shippingAddressQueryService);
+                                                                IShippingAddressQueryService shippingAddressQueryService,
+                                                                       PrincipalResolver principalResolver) {
+        return new ShippingAddressCommandService(shippingAddressDataProvider, shippingAddressQueryService, principalResolver);
     }
 
     @Bean
-    public ShippingAddressQueryService shippingAddressQueryService(IShippingAddressDataProvider shippingAddressDataProvider){
-        return new ShippingAddressQueryService(shippingAddressDataProvider);
+    public ShippingAddressQueryService shippingAddressQueryService(IShippingAddressDataProvider shippingAddressDataProvider,
+                                                                   PrincipalResolver principalResolver){
+        return new ShippingAddressQueryService(shippingAddressDataProvider, principalResolver);
     }
 
 }

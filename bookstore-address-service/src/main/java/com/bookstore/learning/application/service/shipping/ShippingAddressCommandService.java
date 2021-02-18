@@ -5,6 +5,7 @@ import com.bookstore.learning.application.port.in.shipping.IShippingAddressComma
 import com.bookstore.learning.application.port.in.shipping.IShippingAddressQueryService;
 import com.bookstore.learning.application.port.out.IShippingAddressDataProvider;
 import com.bookstore.learning.domain.ShippingAddress;
+import com.bookstore.learning.infrastructure.util.PrincipalResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,35 +15,36 @@ import lombok.extern.slf4j.Slf4j;
 public class ShippingAddressCommandService implements IShippingAddressCommandService {
     private final IShippingAddressDataProvider shippingAddressDataProvider;
     private final IShippingAddressQueryService shippingAddressQueryService;
+    private final PrincipalResolver principalResolver;
 
     @Override
     public String createShippingAddress(ShippingAddress shippingAddress) {
+        exitIfUnauthorized(shippingAddress.getUserEmail());
         return shippingAddressDataProvider.createShippingAddress(shippingAddress);
     }
 
     @Override
     public void updateShippingAddress(ShippingAddress shippingAddress) {
-        exitIfNoShippingAddressFound(shippingAddress.getId());
-        exitIfUnauthorized(shippingAddress.getId(), shippingAddress.getUserEmail());
+        exitIfNoShippingAddressFoundOrUnauthorized(shippingAddress.getId());
         shippingAddressDataProvider.updateShippingAddress(shippingAddress);
     }
 
     @Override
     public void deleteShippingAddress(String shippingAddressId) {
-        exitIfNoShippingAddressFound(shippingAddressId);
+        exitIfNoShippingAddressFoundOrUnauthorized(shippingAddressId);
         shippingAddressDataProvider.deleteShippingAddress(shippingAddressId);
     }
 
-    private void exitIfNoShippingAddressFound(String shippingAddressId) {
-        shippingAddressQueryService.getShippingAddressById(shippingAddressId);
+    private void exitIfUnauthorized(String userEmail) {
+        if(!userEmail.equalsIgnoreCase(principalResolver.getCurrentLoggedInUserMail())) {
+            log.error("UnauthorizedException in ShippingAddressCommandService.createShippingAddress: Current user with mail {} is trying to create an shipping address for the user mail {}",
+                    principalResolver.getCurrentLoggedInUserMail(), userEmail);
+            throw new UnauthorizedException("Current user with mail " + principalResolver.getCurrentLoggedInUserMail() + " is trying to create an shipping address for the user mail " + userEmail);
+        }
     }
 
-    private void exitIfUnauthorized(String shippingAddressId, String loggedInUserEmail) {
-        ShippingAddress shippingAddress = shippingAddressQueryService.getShippingAddressById(shippingAddressId);
-        if(!shippingAddress.getUserEmail().equalsIgnoreCase(shippingAddressId)) {
-            log.error("UnauthorizedException in ShippingAddressCommandService.updateShippingAddress: User {} is not authorized to update the shipping address {}", loggedInUserEmail, shippingAddressId);
-            throw new UnauthorizedException("User " + loggedInUserEmail + " is not authorized to update the shipping address " + shippingAddressId);
-        }
+    private void exitIfNoShippingAddressFoundOrUnauthorized(String shippingAddressId) {
+        shippingAddressQueryService.getShippingAddressById(shippingAddressId);
     }
 
 }

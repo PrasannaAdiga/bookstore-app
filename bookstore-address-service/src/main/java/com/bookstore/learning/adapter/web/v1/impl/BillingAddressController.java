@@ -8,15 +8,11 @@ import com.bookstore.learning.adapter.web.v1.response.BillingAddressResponse;
 import com.bookstore.learning.application.port.in.billing.IBillingAddressCommandService;
 import com.bookstore.learning.application.port.in.billing.IBillingAddressQueryService;
 import com.bookstore.learning.domain.BillingAddress;
-import com.bookstore.learning.infrastructure.constant.AddressServiceConstant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,33 +26,30 @@ public class BillingAddressController implements IBillingAddressController {
     /*============================================ Command Section ===============================================*/
 
     @Override
-    public ResponseEntity<?> createBillingAddress(@Valid CreateBillingAddressRequest createBillingAddressRequest, Jwt principal) {
-        String loggedInUserEmail = principal.getClaimAsString(AddressServiceConstant.ACCESS_TOKEN_EMAIL_FIELD_NAME);
-        BillingAddress billingAddress = buildBillingAddress(createBillingAddressRequest, loggedInUserEmail);
+    public ResponseEntity<?> createBillingAddress(CreateBillingAddressRequest createBillingAddressRequest) {
+        BillingAddress billingAddress = buildBillingAddress(createBillingAddressRequest);
         String billingAddressId = billingAddressCommandService.createBillingAddress(billingAddress);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(billingAddressId).toUri();
         return ResponseEntity.created(location).build();
     }
 
     @Override
-    public ResponseEntity<?> updateBillingAddress(@Valid UpdateBillingAddressRequest updateBillingAddressRequest, Jwt principal) {
-        String loggedInUserEmail = principal.getClaimAsString(AddressServiceConstant.ACCESS_TOKEN_EMAIL_FIELD_NAME);
-        BillingAddress billingAddress = buildBillingAddress(updateBillingAddressRequest, loggedInUserEmail);
+    public ResponseEntity<?> updateBillingAddress(UpdateBillingAddressRequest updateBillingAddressRequest) {
+        BillingAddress billingAddress = buildBillingAddress(updateBillingAddressRequest);
         billingAddressCommandService.updateBillingAddress(billingAddress);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<?> deleteBillingAddress(@NotBlank(message = "Billing address id should not be blank")
-                                                              String id) {
+    public ResponseEntity<?> deleteBillingAddress(String id) {
         billingAddressCommandService.deleteBillingAddress(id);
         return ResponseEntity.noContent().build();
     }
 
-    private BillingAddress buildBillingAddress(AddressRequest addressRequest, String loggedInUserEmail) {
+    private BillingAddress buildBillingAddress(AddressRequest addressRequest) {
         return BillingAddress.builder()
                 .id(addressRequest instanceof UpdateBillingAddressRequest ? ((UpdateBillingAddressRequest) addressRequest).getId() : null)
-                .userEmail(loggedInUserEmail)
+                .userEmail(addressRequest.getUserEmail())
                 .addressLine1(addressRequest.getAddressLine1())
                 .addressLine2(addressRequest.getAddressLine2())
                 .city(addressRequest.getCity())
@@ -70,17 +63,15 @@ public class BillingAddressController implements IBillingAddressController {
     /*============================================ Query Section ================================================*/
 
     @Override
-    public ResponseEntity<BillingAddressResponse> getBillingAddressById(@NotBlank(message = "Billing address id should not be blank")
-                                                                                    String id) {
+    public ResponseEntity<BillingAddressResponse> getBillingAddressById(String id) {
         BillingAddress billingAddress = billingAddressQueryService.getBillingAddressById(id);
         return ResponseEntity.ok().body(buildBillingAddressResponse(billingAddress));
     }
 
     @Override
-    public ResponseEntity<List<BillingAddressResponse>> getAllBillingAddressOfUser(Jwt principal) {
+    public ResponseEntity<List<BillingAddressResponse>> getAllBillingAddressOfUser() {
         List<BillingAddressResponse> billingAddressResponses = new ArrayList<>();
-        String loggedInUserEmail = principal.getClaimAsString(AddressServiceConstant.ACCESS_TOKEN_EMAIL_FIELD_NAME);
-        List<BillingAddress> billingAddress = billingAddressQueryService.getAllBillingAddressOfUser(loggedInUserEmail);
+        List<BillingAddress> billingAddress = billingAddressQueryService.getAllBillingAddressOfLoggedInUser();
         billingAddress.stream().forEach(bAddress -> {
             billingAddressResponses.add(buildBillingAddressResponse(bAddress));
         });
@@ -90,6 +81,7 @@ public class BillingAddressController implements IBillingAddressController {
     private BillingAddressResponse buildBillingAddressResponse(BillingAddress billingAddress) {
         return BillingAddressResponse.builder()
                 .id(billingAddress.getId())
+                .userEmail(billingAddress.getUserEmail())
                 .addressLine1(billingAddress.getAddressLine1())
                 .addressLine2(billingAddress.getAddressLine2())
                 .city(billingAddress.getCity())

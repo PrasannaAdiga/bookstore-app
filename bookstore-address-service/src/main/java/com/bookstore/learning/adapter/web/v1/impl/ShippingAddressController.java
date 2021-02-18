@@ -8,16 +8,13 @@ import com.bookstore.learning.adapter.web.v1.response.ShippingAddressResponse;
 import com.bookstore.learning.application.port.in.shipping.IShippingAddressCommandService;
 import com.bookstore.learning.application.port.in.shipping.IShippingAddressQueryService;
 import com.bookstore.learning.domain.ShippingAddress;
-import com.bookstore.learning.infrastructure.constant.AddressServiceConstant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,32 +26,30 @@ public class ShippingAddressController implements IShippingAddressController {
     /*============================================ Command Section ===============================================*/
 
     @Override
-    public ResponseEntity<?> createShippingAddress(@Valid CreateShippingAddressRequest createShippingAddressRequest, Jwt principal) {
-        String loggedInUserEmail = principal.getClaimAsString(AddressServiceConstant.ACCESS_TOKEN_EMAIL_FIELD_NAME);
-        ShippingAddress shippingAddress = buildShippingAddress(createShippingAddressRequest, loggedInUserEmail);
+    public ResponseEntity<?> createShippingAddress(CreateShippingAddressRequest createShippingAddressRequest) {
+        ShippingAddress shippingAddress = buildShippingAddress(createShippingAddressRequest);
         String shippingAddressId = shippingAddressCommandService.createShippingAddress(shippingAddress);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(shippingAddressId).toUri();
         return ResponseEntity.created(location).build();
     }
 
     @Override
-    public ResponseEntity<?> updateShippingAddress(@Valid UpdateShippingAddressRequest updateShippingAddressRequest, Jwt principal) {
-        String loggedInUserEmail = principal.getClaimAsString(AddressServiceConstant.ACCESS_TOKEN_EMAIL_FIELD_NAME);
-        ShippingAddress shippingAddress = buildShippingAddress(updateShippingAddressRequest, loggedInUserEmail);
+    public ResponseEntity<?> updateShippingAddress(UpdateShippingAddressRequest updateShippingAddressRequest) {
+        ShippingAddress shippingAddress = buildShippingAddress(updateShippingAddressRequest);
         shippingAddressCommandService.updateShippingAddress(shippingAddress);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<?> deleteShippingAddress(@NotBlank(message = "Shipping address id should not be blank") String id) {
+    public ResponseEntity<?> deleteShippingAddress(String id) {
         shippingAddressCommandService.deleteShippingAddress(id);
         return ResponseEntity.noContent().build();
     }
 
-    private ShippingAddress buildShippingAddress(AddressRequest addressRequest, String loggedInUserEmail) {
+    private ShippingAddress buildShippingAddress(AddressRequest addressRequest) {
         return ShippingAddress.builder()
                 .id(addressRequest instanceof UpdateShippingAddressRequest ? ((UpdateShippingAddressRequest) addressRequest).getId() : null)
-                .userEmail(loggedInUserEmail)
+                .userEmail(addressRequest.getUserEmail())
                 .addressLine1(addressRequest.getAddressLine1())
                 .addressLine2(addressRequest.getAddressLine2())
                 .city(addressRequest.getCity())
@@ -68,19 +63,25 @@ public class ShippingAddressController implements IShippingAddressController {
     /*============================================ Query Section ================================================*/
 
     @Override
-    public ResponseEntity<ShippingAddressResponse> getShippingAddressById(@NotBlank(message = "Shipping address id should not be blank") String id) {
+    public ResponseEntity<ShippingAddressResponse> getShippingAddressById(String id) {
         ShippingAddress shippingAddress = shippingAddressQueryService.getShippingAddressById(id);
         return ResponseEntity.ok().body(buildShippingAddressResponse(shippingAddress));
     }
 
     @Override
-    public ResponseEntity<List<ShippingAddressResponse>> getAllShippingAddressOfUser(Jwt principal) {
-        return null;
+    public ResponseEntity<List<ShippingAddressResponse>> getAllShippingAddressOfUser() {
+        List<ShippingAddressResponse> shippingAddressResponses = new ArrayList<>();
+        List<ShippingAddress> shippingAddresses = shippingAddressQueryService.getAllShippingAddressOfLoggedInUser();
+        shippingAddresses.stream().forEach(sAddress -> {
+            shippingAddressResponses.add(buildShippingAddressResponse(sAddress));
+        });
+        return ResponseEntity.ok().body(shippingAddressResponses);
     }
 
     private ShippingAddressResponse buildShippingAddressResponse(ShippingAddress shippingAddress) {
         return ShippingAddressResponse.builder()
                 .id(shippingAddress.getId())
+                .userEmail(shippingAddress.getUserEmail())
                 .addressLine1(shippingAddress.getAddressLine1())
                 .addressLine2(shippingAddress.getAddressLine2())
                 .city(shippingAddress.getCity())

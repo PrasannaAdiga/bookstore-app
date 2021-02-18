@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +29,7 @@ public interface IShippingAddressController {
             @ApiResponse(responseCode = "403", description = "Not Authorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<?> createShippingAddress(@RequestBody @Valid CreateShippingAddressRequest createShippingAddressRequest, Jwt principal);
+    ResponseEntity<?> createShippingAddress(@RequestBody @Valid CreateShippingAddressRequest createShippingAddressRequest);
 
     @PutMapping
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
@@ -41,7 +40,7 @@ public interface IShippingAddressController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<?> updateShippingAddress(@RequestBody @Valid UpdateShippingAddressRequest updateShippingAddressRequest, Jwt principal);
+    ResponseEntity<?> updateShippingAddress(@RequestBody @Valid UpdateShippingAddressRequest updateShippingAddressRequest);
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
@@ -76,6 +75,6 @@ public interface IShippingAddressController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<List<ShippingAddressResponse>> getAllShippingAddressOfUser(Jwt principal);
+    ResponseEntity<List<ShippingAddressResponse>> getAllShippingAddressOfUser();
 
 }

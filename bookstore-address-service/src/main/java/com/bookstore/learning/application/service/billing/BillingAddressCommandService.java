@@ -5,6 +5,7 @@ import com.bookstore.learning.application.port.in.billing.IBillingAddressCommand
 import com.bookstore.learning.application.port.in.billing.IBillingAddressQueryService;
 import com.bookstore.learning.application.port.out.IBillingAddressDataProvider;
 import com.bookstore.learning.domain.BillingAddress;
+import com.bookstore.learning.infrastructure.util.PrincipalResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,35 +14,37 @@ import lombok.extern.slf4j.Slf4j;
 public class BillingAddressCommandService implements IBillingAddressCommandService {
     private final IBillingAddressDataProvider billingAddressDataProvider;
     private final IBillingAddressQueryService billingAddressQueryService;
+    private final PrincipalResolver principalResolver;
 
     @Override
     public String createBillingAddress(BillingAddress billingAddress) {
+        exitIfUnauthorized(billingAddress.getUserEmail());
         return billingAddressDataProvider.createBillingAddress(billingAddress);
     }
 
     @Override
     public void updateBillingAddress(BillingAddress billingAddress) {
-        exitIfNoBillingAddressFound(billingAddress.getId());
-        exitIfUnauthorized(billingAddress.getId(), billingAddress.getUserEmail());
+        exitIfNoBillingAddressFoundOrUnauthorized(billingAddress.getId());
         billingAddressDataProvider.updateBillingAddress(billingAddress);
 
     }
 
     @Override
     public void deleteBillingAddress(String billingAddressId) {
-        exitIfNoBillingAddressFound(billingAddressId);
+        exitIfNoBillingAddressFoundOrUnauthorized(billingAddressId);
         billingAddressDataProvider.deleteBillingAddress(billingAddressId);
     }
 
-    private void exitIfNoBillingAddressFound(String billingAddressId) {
+    private void exitIfUnauthorized(String userEmail) {
+        if(!userEmail.equalsIgnoreCase(principalResolver.getCurrentLoggedInUserMail())) {
+            log.error("UnauthorizedException in BillingAddressCommandService.createBillingAddress: Current user with mail {} is trying to create an billing address for the user mail {}",
+                    principalResolver.getCurrentLoggedInUserMail(), userEmail);
+            throw new UnauthorizedException("Current user with mail " + principalResolver.getCurrentLoggedInUserMail() + " is trying to create an billing address for the user mail " + userEmail);
+        }
+    }
+
+    private void exitIfNoBillingAddressFoundOrUnauthorized(String billingAddressId) {
         billingAddressQueryService.getBillingAddressById(billingAddressId);
     }
 
-    private void exitIfUnauthorized(String billingAddressId, String loggedInUserEmail) {
-        BillingAddress billingAddress = billingAddressQueryService.getBillingAddressById(billingAddressId);
-        if(!billingAddress.getUserEmail().equalsIgnoreCase(billingAddressId)) {
-            log.error("UnauthorizedException in BillingAddressCommandService.updateBillingAddress: User {} is not authorized to update the billing address {}", loggedInUserEmail, billingAddressId);
-            throw new UnauthorizedException("User " + loggedInUserEmail + " is not authorized to update the billing address " + billingAddressId);
-        }
-    }
 }

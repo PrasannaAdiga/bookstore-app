@@ -35,7 +35,7 @@ public class ShippingAddressPersistenceAdapter implements IShippingAddressDataPr
     @Override
     public Optional<List<ShippingAddress>> getAllShippingAddressOfUser(String userEmail) {
         Optional<List<ShippingAddressEntity>> shippingAddressEntities = shippingAddressRepository.findByUserEmail(userEmail);
-        if(!shippingAddressEntities.isPresent()) {
+        if(!shippingAddressEntities.isPresent() || shippingAddressEntities.get().isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(shippingAddressEntities.get().stream().map(new Function<ShippingAddressEntity, ShippingAddress>() {

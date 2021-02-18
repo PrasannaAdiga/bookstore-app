@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +29,7 @@ public interface IBillingAddressController {
             @ApiResponse(responseCode = "403", description = "Not Authorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<?> createBillingAddress(@RequestBody @Valid CreateBillingAddressRequest createBillingAddressRequest, Jwt principal);
+    ResponseEntity<?> createBillingAddress(@RequestBody @Valid CreateBillingAddressRequest createBillingAddressRequest);
 
     @PutMapping
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
@@ -41,7 +40,7 @@ public interface IBillingAddressController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<?> updateBillingAddress(@RequestBody @Valid UpdateBillingAddressRequest updateBillingAddressRequest, Jwt principal);
+    ResponseEntity<?> updateBillingAddress(@RequestBody @Valid UpdateBillingAddressRequest updateBillingAddressRequest);
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
@@ -76,6 +75,6 @@ public interface IBillingAddressController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<List<BillingAddressResponse>> getAllBillingAddressOfUser(Jwt principal);
+    ResponseEntity<List<BillingAddressResponse>> getAllBillingAddressOfUser();
 
 }

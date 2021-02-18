@@ -23,10 +23,9 @@ public class BillingAddressEntity extends Auditor<String> {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     @Column(updatable = false, nullable = false)
-    @NotBlank(message = "Billing Address Id should not be blank")
     private String id;
 
-    @Column(name = "user_email", nullable = false, unique = true)
+    @Column(name = "user_email", nullable = false)
     @NotBlank(message = "User Email should not be blank")
     private String userEmail;
 

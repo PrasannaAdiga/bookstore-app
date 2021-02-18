@@ -35,7 +35,7 @@ public class BillingAddressPersistenceAdapter implements IBillingAddressDataProv
     @Override
     public Optional<List<BillingAddress>> getAllBillingAddressOfUser(String userEmail) {
         Optional<List<BillingAddressEntity>> billingAddressEntities = billingAddressRepository.findByUserEmail(userEmail);
-        if(!billingAddressEntities.isPresent()) {
+        if(!billingAddressEntities.isPresent() || billingAddressEntities.get().isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(billingAddressEntities.get().stream().map(new Function<BillingAddressEntity, BillingAddress>() {

@@ -5,6 +5,6 @@ import com.bookstore.learning.domain.ShippingAddress;
 import java.util.List;
 
 public interface IShippingAddressQueryService {
-    List<ShippingAddress> getAllShippingAddressOfUser(String userEmail);
+    List<ShippingAddress> getAllShippingAddressOfLoggedInUser();
     ShippingAddress getShippingAddressById(String shippingAddressId);
 }
