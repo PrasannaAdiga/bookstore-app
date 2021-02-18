@@ -2,6 +2,7 @@ package com.bookstore.learning.adapter.web.exception.handler;
 
 import com.bookstore.learning.adapter.web.exception.response.RestApiResponseErrorMessage;
 import com.bookstore.learning.application.exception.ResourceNotFoundException;
+import com.bookstore.learning.application.exception.StripeAPICallException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,6 +41,17 @@ public class CustomAPIExceptionHandler {
         RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Illegal Argument Exception!")
+                .message(exception.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(restApiResponseErrorMessage, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StripeAPICallException.class)
+    public ResponseEntity<RestApiResponseErrorMessage> handleStripeAPICallException(final Exception exception, final HttpServletRequest request) {
+        RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad request from Stripe!")
                 .message(exception.getMessage())
                 .path(request.getRequestURI())
                 .build();

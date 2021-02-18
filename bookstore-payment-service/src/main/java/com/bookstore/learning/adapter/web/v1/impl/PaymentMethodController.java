@@ -8,11 +8,9 @@ import com.bookstore.learning.application.port.in.IPaymentMethodQueryService;
 import com.bookstore.learning.domain.Card;
 import com.bookstore.learning.domain.PaymentMethodType;
 import com.bookstore.learning.infrastructure.annotation.WebAdapter;
-import com.bookstore.learning.infrastructure.constant.PaymentServiceConstant;
+import com.bookstore.learning.infrastructure.util.PrincipalResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -26,12 +24,12 @@ import java.util.List;
 public class PaymentMethodController implements IPaymentMethodController {
     private final IPaymentMethodCommandService paymentMethodCommandService;
     private final IPaymentMethodQueryService paymentMethodQueryService;
+    private final PrincipalResolver principalResolver;
 
     /*============================================ Command Section ===============================================*/
 
     @Override
-    public ResponseEntity<?> createPaymentMethod(CreatePaymentMethodRequest createPaymentMethodRequest, Jwt principal) {
-        String loggedInUserEmail = principal.getClaimAsString(PaymentServiceConstant.ACCESS_TOKEN_EMAIL_FIELD_NAME);
+    public ResponseEntity<?> createPaymentMethod(CreatePaymentMethodRequest createPaymentMethodRequest) {
         Card card = Card.builder()
                 .firstName(createPaymentMethodRequest.getFirstName())
                 .lastName(createPaymentMethodRequest.getLastName())
@@ -39,9 +37,9 @@ public class PaymentMethodController implements IPaymentMethodController {
                 .last4Digits(createPaymentMethodRequest.getLast4Digits())
                 .expirationMonth(createPaymentMethodRequest.getExpirationMonth())
                 .expirationYear(createPaymentMethodRequest.getExpirationYear())
-                .cvv(createPaymentMethodRequest.getCvv())
+                .cvc(createPaymentMethodRequest.getCvv())
                 .build();
-        String paymentMethodId = paymentMethodCommandService.createPaymentMethod(card, loggedInUserEmail);
+        String paymentMethodId = paymentMethodCommandService.createPaymentMethod(card);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(paymentMethodId).toUri();
         return ResponseEntity.created(location).build();
     }
@@ -49,9 +47,8 @@ public class PaymentMethodController implements IPaymentMethodController {
     /*============================================ Query Section ================================================*/
 
     @Override
-    public ResponseEntity<List<PaymentMethodResponse>> getAllPaymentMethodOfUser(@AuthenticationPrincipal Jwt principal) {
-        String loggedInUserEmail = principal.getClaimAsString(PaymentServiceConstant.ACCESS_TOKEN_EMAIL_FIELD_NAME);
-        List<PaymentMethodType> paymentMethodTypes = paymentMethodQueryService.getAllPaymentMethodOfUser(loggedInUserEmail);
+    public ResponseEntity<List<PaymentMethodResponse>> getAllPaymentMethodOfUser() {
+        List<PaymentMethodType> paymentMethodTypes = paymentMethodQueryService.getAllPaymentMethodOfUser();
         List<PaymentMethodResponse> paymentMethodResponses = new ArrayList<>();
         paymentMethodTypes.forEach(paymentMethodType -> {
             paymentMethodResponses.add(PaymentMethodResponse.builder()
@@ -67,9 +64,8 @@ public class PaymentMethodController implements IPaymentMethodController {
     }
 
     @Override
-    public ResponseEntity<PaymentMethodResponse> getPaymentMethodOfUserById(String paymentMethodId, @AuthenticationPrincipal Jwt principal) {
-        String loggedInUserEmail = principal.getClaimAsString(PaymentServiceConstant.ACCESS_TOKEN_EMAIL_FIELD_NAME);
-        PaymentMethodType paymentMethodType = paymentMethodQueryService.getPaymentMethodOfUserById(paymentMethodId, loggedInUserEmail);
+    public ResponseEntity<PaymentMethodResponse> getPaymentMethodOfUserById(String paymentMethodId) {
+        PaymentMethodType paymentMethodType = paymentMethodQueryService.getPaymentMethodOfUserById(paymentMethodId);
         PaymentMethodResponse paymentMethodResponse = PaymentMethodResponse.builder()
                 .cardType(paymentMethodType.getCardType())
                 .cardCountry(paymentMethodType.getCardCountry())

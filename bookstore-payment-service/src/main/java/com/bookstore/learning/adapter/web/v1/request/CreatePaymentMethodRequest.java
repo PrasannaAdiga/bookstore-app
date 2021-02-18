@@ -3,6 +3,7 @@ package com.bookstore.learning.adapter.web.v1.request;
 import lombok.Getter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 
 @Getter
 public class CreatePaymentMethodRequest {
@@ -18,12 +19,12 @@ public class CreatePaymentMethodRequest {
     @NotBlank(message = "Last4digits should not be blank")
     private String last4Digits;
 
-    @NotBlank(message = "Expiration Month should not be blank")
+    @Positive(message = "Expiration Month should be positive")
     private int expirationMonth;
 
-    @NotBlank(message = "Expiration Year should not be blank")
+    @Positive(message = "Expiration Year should be positive")
     private int expirationYear;
 
-    @NotBlank(message = "cvv should not be blank")
+    @Positive(message = "cvv should be positive")
     private int cvv;
 }

@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +28,7 @@ public interface IPaymentMethodController {
             @ApiResponse(responseCode = "403", description = "Not Authorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<?> createPaymentMethod(@RequestBody @Valid CreatePaymentMethodRequest createPaymentMethodRequest,
-                                          Jwt principal);
+    ResponseEntity<?> createPaymentMethod(@RequestBody @Valid CreatePaymentMethodRequest createPaymentMethodRequest);
 
     @GetMapping
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
@@ -41,7 +39,7 @@ public interface IPaymentMethodController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<List<PaymentMethodResponse>> getAllPaymentMethodOfUser(Jwt principal);
+    ResponseEntity<List<PaymentMethodResponse>> getAllPaymentMethodOfUser();
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
@@ -54,7 +52,6 @@ public interface IPaymentMethodController {
             security = @SecurityRequirement(name = "bearerAuth"))
     ResponseEntity<PaymentMethodResponse> getPaymentMethodOfUserById(@PathVariable(value = "id")
                                                                      @NotBlank(message = "Payment method Id should not be blank")
-                                                                             String paymentMethodId,
-                                                                     Jwt principal);
+                                                                             String paymentMethodId);
 
 }

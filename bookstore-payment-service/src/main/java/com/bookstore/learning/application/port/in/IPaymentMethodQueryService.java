@@ -5,6 +5,6 @@ import com.bookstore.learning.domain.PaymentMethodType;
 import java.util.List;
 
 public interface IPaymentMethodQueryService {
-    List<PaymentMethodType> getAllPaymentMethodOfUser(String userEmail);
-    PaymentMethodType getPaymentMethodOfUserById(String paymentMethodId, String userEmail);
+    List<PaymentMethodType> getAllPaymentMethodOfUser();
+    PaymentMethodType getPaymentMethodOfUserById(String paymentMethodId);
 }

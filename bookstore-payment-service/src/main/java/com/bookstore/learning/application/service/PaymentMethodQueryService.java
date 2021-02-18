@@ -6,6 +6,8 @@ import com.bookstore.learning.application.port.in.IPaymentMethodQueryService;
 import com.bookstore.learning.application.port.out.IUserPaymentCustomerDataProvider;
 import com.bookstore.learning.domain.PaymentMethodType;
 import com.bookstore.learning.domain.UserPaymentCustomer;
+import com.bookstore.learning.infrastructure.constant.PaymentServiceConstant;
+import com.bookstore.learning.infrastructure.util.PrincipalResolver;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentMethod;
 import com.stripe.model.PaymentMethodCollection;
@@ -18,9 +20,11 @@ import java.util.*;
 @Slf4j
 public class PaymentMethodQueryService implements IPaymentMethodQueryService {
     private final IUserPaymentCustomerDataProvider userPaymentCustomerDataProvider;
+    private final PrincipalResolver principalResolver;
 
     @Override
-    public List<PaymentMethodType> getAllPaymentMethodOfUser(String userEmail) {
+    public List<PaymentMethodType> getAllPaymentMethodOfUser() {
+        String userEmail = principalResolver.getCurrentLoggedInUserMail();
         List<PaymentMethodType> paymentMethodTypes = new ArrayList<>();
         Optional<UserPaymentCustomer> userPaymentCustomer = userPaymentCustomerDataProvider.getUserPaymentCustomerByUserEmail(userEmail);
         userPaymentCustomer.orElseThrow(() -> {
@@ -43,18 +47,13 @@ public class PaymentMethodQueryService implements IPaymentMethodQueryService {
     }
 
     @Override
-    public PaymentMethodType getPaymentMethodOfUserById(String paymentMethodId, String userEmail) {
+    public PaymentMethodType getPaymentMethodOfUserById(String paymentMethodId) {
+        String userEmail = principalResolver.getCurrentLoggedInUserMail();
         Optional<UserPaymentCustomer> userPaymentCustomer = userPaymentCustomerDataProvider.getUserPaymentCustomerByUserEmail(userEmail);
-        userPaymentCustomer.orElseThrow(() -> {
-            log.error("ResourceNotFoundException in PaymentMethodQueryService.getAllPaymentMethodOfUser: No Payment method found for user email {}", userEmail);
-            throw new ResourceNotFoundException("No Payment method found for user email " + userEmail);
-        });
+        exitIfNoPaymentCustomerFound(userPaymentCustomer);
         try {
             PaymentMethod paymentMethod = PaymentMethod.retrieve(paymentMethodId);
-            if (!userPaymentCustomer.get().getPaymentCustomerId().equals(paymentMethod.getCustomer())) {
-                log.error("StripeAPICallException in PaymentMethodQueryService.getPaymentMethodOfUserById: PaymentMethod doesn't belong to this user email {}", userEmail);
-                throw new StripeAPICallException("PaymentMethod doesn't belong to this user email " + userEmail);
-            }
+            exitIfUnauthorized(userPaymentCustomer, paymentMethod);
             return PaymentMethodType.builder()
                     .id(paymentMethod.getId())
                     .cardCountry(paymentMethod.getCard().getCountry())
@@ -66,20 +65,39 @@ public class PaymentMethodQueryService implements IPaymentMethodQueryService {
         } catch (StripeException ex) {
             log.error("StripeAPICallException in PaymentMethodQueryService.getPaymentMethodOfUserById: " +
                     "Error while fetching payment method for the user email {}, Exception: {}", userEmail, ex);
-            throw new StripeAPICallException("Error while fetching payment method for the user email " + userEmail);
+            throw new StripeAPICallException("Error while fetching payment method for the user email "
+                    + userEmail + ". Exception: " + ex);
         }
     }
 
     private PaymentMethodCollection getAllPaymentMethodsForCustomerFromStripe(String paymentCustomerId) {
         Map<String, Object> params = new HashMap<>();
-        params.put("customer", paymentCustomerId);
-        params.put("type", "card");
+        params.put(PaymentServiceConstant.PAYMENT_CUSTOMER, paymentCustomerId);
+        params.put(PaymentServiceConstant.PAYMENT_TYPE, PaymentServiceConstant.PAYMENT_CARD);
         try {
-            return com.stripe.model.PaymentMethod.list(params);
+            return PaymentMethod.list(params);
         } catch (StripeException ex) {
             log.error("StripeAPICallException in PaymentMethodQueryService.getAllPaymentMethodsForCustomerFromStripe: " +
                     "Error while attaching customer from Stripe for the customer Id {}, Exception: {}", paymentCustomerId, ex);
-            throw new StripeAPICallException("Error while retrieving customer from Stripe for the customer Id " + paymentCustomerId);
+            throw new StripeAPICallException("Error while retrieving customer from Stripe for the customer Id "
+                    + paymentCustomerId + ". Exception: " + ex);
+        }
+    }
+
+    private void exitIfNoPaymentCustomerFound(Optional<UserPaymentCustomer> userPaymentCustomer) {
+        userPaymentCustomer.orElseThrow(() -> {
+            log.error("ResourceNotFoundException in PaymentMethodQueryService.getAllPaymentMethodOfUser: No Payment method found for user email {}",
+                    principalResolver.getCurrentLoggedInUserMail());
+            throw new ResourceNotFoundException("No Payment method found for user email " + principalResolver.getCurrentLoggedInUserMail());
+        });
+    }
+
+    private void exitIfUnauthorized(Optional<UserPaymentCustomer> userPaymentCustomer, PaymentMethod paymentMethod) {
+        if (!userPaymentCustomer.get().getPaymentCustomerId().equals(paymentMethod.getCustomer())) {
+            log.error("StripeAPICallException in PaymentMethodQueryService.getPaymentMethodOfUserById: PaymentMethod with ID {} doesn't belong to this user email {}",
+                    paymentMethod.getId(), principalResolver.getCurrentLoggedInUserMail());
+            throw new StripeAPICallException("PaymentMethod with ID " + paymentMethod.getId() + " doesn't belong to this user email "
+                    + principalResolver.getCurrentLoggedInUserMail());
         }
     }
 

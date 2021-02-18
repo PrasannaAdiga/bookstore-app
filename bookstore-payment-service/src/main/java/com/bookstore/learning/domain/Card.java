@@ -27,5 +27,5 @@ public class Card {
     private int expirationYear;
 
     @NotBlank(message = "cvv should not be blank")
-    private int cvv;
+    private int cvc;
 }
