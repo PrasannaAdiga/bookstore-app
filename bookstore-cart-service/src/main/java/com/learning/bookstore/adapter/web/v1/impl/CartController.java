@@ -8,8 +8,6 @@ import com.learning.bookstore.application.port.in.cart.ICartQueryService;
 import com.learning.bookstore.domain.Cart;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -22,13 +20,12 @@ import java.util.List;
 public class CartController implements ICartController {
     private final ICartCommandService cartCommandService;
     private final ICartQueryService cartQueryService;
-    private static final String ACCESS_TOKEN_EMAIL_FIELD = "email";
 
     /*============================================ Command Section ===============================================*/
 
     @Override
-    public ResponseEntity<?> createCart(@AuthenticationPrincipal Jwt principal) {
-        String cartId = cartCommandService.createCart(principal.getClaimAsString(ACCESS_TOKEN_EMAIL_FIELD));
+    public ResponseEntity<?> createCart() {
+        String cartId = cartCommandService.createCart();
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(cartId).toUri();
         return ResponseEntity.created(location).build();
     }
@@ -36,8 +33,13 @@ public class CartController implements ICartController {
     /*============================================ Query Section ================================================*/
 
     @Override
-    public ResponseEntity<CartResponse> getCart(@AuthenticationPrincipal Jwt principal) {
-        Cart cart = cartQueryService.getCartByUserEmail(principal.getClaimAsString(ACCESS_TOKEN_EMAIL_FIELD));
+    public ResponseEntity<CartResponse> getCart() {
+        Cart cart = cartQueryService.getCartByUserEmail();
+        List<CartItemResponse> cartItemResponses = buildCartItemResponse(cart);
+        return ResponseEntity.ok().body(buildCartResponse(cart, cartItemResponses));
+    }
+
+    private List<CartItemResponse> buildCartItemResponse(Cart cart) {
         List<CartItemResponse> cartItemResponses = new ArrayList<>();
         cart.getCartItems().forEach(cartItem -> {
             cartItemResponses.add(CartItemResponse.builder()
@@ -48,14 +50,16 @@ public class CartController implements ICartController {
                     .quantity(cartItem.getQuantity())
                     .build());
         });
-        CartResponse cartResponse = CartResponse.builder()
+        return cartItemResponses;
+    }
+
+    private CartResponse buildCartResponse(Cart cart, List<CartItemResponse> cartItemResponses) {
+        return CartResponse.builder()
                 .id(cart.getId())
                 .userEmail(cart.getUserEmail())
                 .totalPrice(cart.getTotalPrice())
                 .cartItems(cartItemResponses)
                 .build();
-        return ResponseEntity.ok().body(cartResponse);
     }
-
 
 }

@@ -28,7 +28,7 @@ public interface ICartItemController {
             @ApiResponse(responseCode = "403", description = "Not Authorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<?> createCartItem(@RequestBody @Valid CreateCartItemRequest createCartItemRequest, Jwt principal);
+    ResponseEntity<?> createCartItem(@RequestBody @Valid CreateCartItemRequest createCartItemRequest);
 
     @DeleteMapping("/items/{id}")
     @PreAuthorize("hasAnyRole('Buyer','Admin')")

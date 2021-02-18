@@ -9,6 +9,7 @@ import com.learning.bookstore.domain.CartItem;
 import com.learning.bookstore.infrastructure.annotation.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -27,7 +28,7 @@ public class CartPersistenceAdapter implements ICartDataProvider {
     @Override
     public Optional<Cart> getCartByCartId(String cartId) {
         Optional<CartEntity> cartEntity = cartRepository.findById(cartId);
-        if(!cartEntity.isPresent()) {
+        if (!cartEntity.isPresent()) {
             return Optional.empty();
         }
         return Optional.of(buildCart(cartEntity.get()));
@@ -36,35 +37,17 @@ public class CartPersistenceAdapter implements ICartDataProvider {
     @Override
     public Optional<Cart> getCartByUserEmail(String userEmail) {
         Optional<CartEntity> cartEntity = cartRepository.findByUserEmail(userEmail);
-        if(!cartEntity.isPresent()) {
+        if (!cartEntity.isPresent()) {
             return Optional.empty();
         }
         return Optional.of(buildCart(cartEntity.get()));
     }
 
     private CartEntity buildCartEntity(Cart cart) {
-        List<CartItemEntity> cartItemEntities = cart.getCartItems().stream().map(new Function<CartItem, CartItemEntity>() {
-            @Override
-            public CartItemEntity apply(CartItem cartItem) {
-                return buildCartItemEntity(cartItem);
-            }
-        }).collect(Collectors.toList());
         return CartEntity.builder()
-                .id(cart.getId())
                 .userEmail(cart.getUserEmail())
-                .totalPrice(cart.getTotalPrice())
-                .cartItems(cartItemEntities)
+                .cartItems(new ArrayList<>())
                 .build();
-    }
-
-    private CartItemEntity buildCartItemEntity(CartItem cartItem) {
-         return CartItemEntity.builder()
-                 .id(cartItem.getId())
-                 .price(cartItem.getPrice())
-                 .extendedPrice(cartItem.getExtendedPrice())
-                 .quantity(cartItem.getQuantity())
-                 .productId(cartItem.getProductId())
-                 .build();
     }
 
     private Cart buildCart(CartEntity cartEntity) {
@@ -83,13 +66,13 @@ public class CartPersistenceAdapter implements ICartDataProvider {
     }
 
     private CartItem buildCartItem(CartItemEntity cartItemEntity) {
-            return CartItem.builder()
-                    .id(cartItemEntity.getId())
-                    .price(cartItemEntity.getPrice())
-                    .extendedPrice(cartItemEntity.getExtendedPrice())
-                    .quantity(cartItemEntity.getQuantity())
-                    .productId(cartItemEntity.getProductId())
-                    .build();
+        return CartItem.builder()
+                .id(cartItemEntity.getId())
+                .price(cartItemEntity.getPrice())
+                .extendedPrice(cartItemEntity.getExtendedPrice())
+                .quantity(cartItemEntity.getQuantity())
+                .productId(cartItemEntity.getProductId())
+                .build();
     }
 
 }

@@ -24,14 +24,15 @@ public interface ICartController {
             @ApiResponse(responseCode = "403", description = "Not Authorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<?> createCart(Jwt principal);
+    ResponseEntity<?> createCart();
 
     @GetMapping
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Get buyer cart", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestApiResponseErrorMessage.class)))},
             security = @SecurityRequirement(name = "bearerAuth"))
-    ResponseEntity<CartResponse> getCart(Jwt principal);
+    ResponseEntity<CartResponse> getCart();
 
 }

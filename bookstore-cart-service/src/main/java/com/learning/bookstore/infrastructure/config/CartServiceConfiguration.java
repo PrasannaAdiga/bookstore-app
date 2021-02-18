@@ -8,30 +8,35 @@ import com.learning.bookstore.application.service.cart.CartCommandService;
 import com.learning.bookstore.application.service.cart.CartQueryService;
 import com.learning.bookstore.application.service.item.CartItemCommandService;
 import com.learning.bookstore.application.service.item.CartItemQueryService;
+import com.learning.bookstore.infrastructure.util.PrincipalResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class CartServiceConfiguration {
     @Bean
-    public CartCommandService cartCommandService(ICartDataProvider cartDataProvider) {
-        return new CartCommandService(cartDataProvider);
+    public CartCommandService cartCommandService(ICartDataProvider cartDataProvider,
+                                                 PrincipalResolver principalResolver) {
+        return new CartCommandService(cartDataProvider, principalResolver);
     }
 
     @Bean
-    public CartQueryService cartQueryService(ICartDataProvider cartDataProvider) {
-        return new CartQueryService(cartDataProvider);
+    public CartQueryService cartQueryService(ICartDataProvider cartDataProvider,
+                                             PrincipalResolver principalResolver) {
+        return new CartQueryService(cartDataProvider, principalResolver);
     }
 
     @Bean
     public CartItemCommandService cartItemCommandService(ICartQueryService cartQueryService,
-                                                                ICartItemDataProvider cartItemDataProvider,
-                                                                ProductFeignClient productFeignClient) {
-        return new CartItemCommandService(cartQueryService, cartItemDataProvider, productFeignClient);
+                                                         ICartItemDataProvider cartItemDataProvider,
+                                                         ProductFeignClient productFeignClient,
+                                                         PrincipalResolver principalResolver) {
+        return new CartItemCommandService(cartQueryService, cartItemDataProvider,
+                productFeignClient, principalResolver);
     }
 
     @Bean
-    public CartItemQueryService cartItemQueryService(ICartItemDataProvider cartItemDataProvider){
+    public CartItemQueryService cartItemQueryService(ICartItemDataProvider cartItemDataProvider) {
         return new CartItemQueryService(cartItemDataProvider);
     }
 

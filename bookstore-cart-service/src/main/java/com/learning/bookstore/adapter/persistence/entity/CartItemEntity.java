@@ -1,7 +1,6 @@
 package com.learning.bookstore.adapter.persistence.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.learning.bookstore.domain.Cart;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,8 +39,8 @@ public class CartItemEntity extends Auditor<String> {
     private String productId;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "cart_id")
     @JsonIgnore
-    private Cart cart;
+    private CartEntity cart;
 
 }
