@@ -1,5 +1,13 @@
 # Supported Functionalities
-Below steps are followed to perform any payment through Stripe
+
+### Stripe
+Software for processing user payment
+ - To integrate Stripe in spring boot application add the dependency 'stripe-java'
+ - Register in Stripe and get the secret key 
+ - Add the secret key value in main application for the key name 'Stripe.apiKey'
+ - Use the REST APIs provided by the above plugin to create a new customer, to create a new payment method for this customer, for linking a customer with their list of payment methods and finally to make th epayment by choosing any one payment method.
+
+To process the user payment, follow the below mentioned steps
 
 ###1. Payment Customer.
  - Create a Payment Customer in stripe for the logged in user email
