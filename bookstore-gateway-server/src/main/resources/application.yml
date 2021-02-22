@@ -1,0 +1,92 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local_zone1}
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: bookstore-product-service
+          uri: lb://bookstore-product-service
+          predicates:
+            - Path=/product-service/**
+          filters:
+            - RewritePath=/product-service/(?<path>.*), /$\{path}
+        - id: bookstore-cart-service
+          uri: lb://bookstore-cart-service
+          predicates:
+            - Path=/cart-service/**
+          filters:
+            - RewritePath=/cart-service/(?<path>.*), /$\{path}
+        - id: bookstore-address-service
+          uri: lb://bookstore-address-service
+          predicates:
+            - Path=/address-service/**
+          filters:
+            - RewritePath=/address-service/(?<path>.*), /$\{path}
+        - id: bookstore-payment-service
+          uri: lb://bookstore-payment-service
+          predicates:
+            - Path=/payment-service/**
+          filters:
+            - RewritePath=/payment-service/(?<path>.*), /$\{path}
+        - id: bookstore-order-service
+          uri: lb://bookstore-order-service
+          predicates:
+            - Path=/order-service/**
+          filters:
+            - RewritePath=/order-service/(?<path>.*), /$\{path}
+
+logging:
+  level:
+    com.learning.bookstore.*: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+---
+
+spring:
+  profiles: local_zone1
+  cloud:
+    consul:
+      discovery:
+        instanceZone: zone1
+        register: false
+        registerHealthCheck: false
+        tags: zone=zone1
+server:
+  port: ${PORT:8080}
+
+---
+
+spring:
+  profiles: local_zone2
+  cloud:
+    consul:
+      discovery:
+        instanceZone: zone2
+        register: false
+        registerHealthCheck: false
+        tags: zone=zone2
+server:
+  port: ${PORT:9080}
+
+---
+
+spring:
+  profiles: docker
+  cloud:
+    consul:
+      discovery:
+        instanceZone: zone2
+        register: false
+        registerHealthCheck: false
+        tags: zone=zone2
+server:
+  port: ${PORT:8080}
