@@ -7,3 +7,6 @@
  - User can get their Cart details through REST API, which contains each cart item details which they have added along with total price
  - Also, user can remove specific Cart Item through Cart Item ID or can remove all added Cart Items through their Cart ID by using provided REST APIs
  
+# Note
+ - For Inter service communication, add another project 'bookstore-feignclient-service' as a dependency in this project. The required configurations are defined in the README.md file of 'bookstore-feignclient-service' project. 
+ 

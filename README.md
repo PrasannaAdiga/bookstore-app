@@ -96,12 +96,16 @@ By using Spring Cloud Gateway
  - Now we can be sure that each incoming request to gateway server started in zone1 would be forwarded to only those microservices which are also having the tag of 'zone1'. And the same for Zone2.
  - To access gateway server running on port 8080(zone1)/9080(zone2): http://localhost:<port>/<service-name-defined-in-gateway-server>/<service-path>
   
-# Inter Service Communication
-By Using Spring Cloud OpenFeign  
+# Inter Service Communication 
+Along with Client Side Load Balancer and Circuit Breaker
 
- - Add the dependency 'spring-cloud-starter-openfeign'
- - The OpenFeign client is auto-integrated with service discovery. To use it we need to declare an interface with required methods for communication. 
- - The interface has to be annotated with @FeignClient that points to the service using its discovery name.
+By Using Spring Cloud OpenFeign with Spring Cloud LoadBalancer(Load Balancer) and spring-cloud-starter-circuitbreaker-resilience4j(Circuit Breaker)  
+
+ - Add the dependency 'spring-cloud-starter-openfeign' and 'spring-cloud-starter-circuitbreaker-resilience4j'
+ - By default, Spring Cloud OpenFeign uses Spring Cloud LoadBalance as a client side load balancer.
+ - The OpenFeign will auto-integrate with service discovery like Consul. 
+ - To use it we need to declare an interface with required methods for communication. Method signature must be similar to the one which is defined in the actual microservice.
+ - The interface has to be annotated with @FeignClient that points to the service using its discovery name as registered in Consul.
  ```
  @FeignClient("bookstore-address-service")
  public interface AddressFeignClient { 
@@ -109,13 +113,38 @@ By Using Spring Cloud OpenFeign
      BillingAddressResponse getBillingAddressById(@PathVariable("id") String id);
  }
  ```
- - Finally, add the annotation @EnableFeignClients to main application
+#### Resilience4j
+ - Spring Cloud OpenFeign uses Resilience4j as Circuit Breaker if 'spring-cloud-starter-circuitbreaker-resilience4j' is in the classpath, and the below configuration set:
  ```
- @EnableFeignClients(basePackages = {"com.bookstore.learning.adapter.client"})
- public class BookstoreOrderServiceApplication {
-     public static void main(String[] args) {
-       SpringApplication.run(BookstoreOrderServiceApplication.class, args);
+ feign:
+   circuitbreaker:
+     enabled: true
+ ```
+ - To implement Fallback method for Circuit Breaker, the above plugin provides FallbackFactory interface, which can be implemented to provide default handler and can catch the Actual Cause of the Client Calls
+ - Below is such Custom FallbackFactory classes and Handlers:
+ ```
+ @Component
+ public class ProductClientFactory implements FallbackFactory<ProductClientHandler> {
+     @Override
+     public ProductClientHandler create(Throwable cause) {
+         return new ProductClientHandler();
      }
+ }
+
+ public class ProductClientHandler implements ProductFeignClient {
+     @Override
+     public ProductResponse getProductById(String id) {
+         return ProductResponse.builder()
+                 .availableCount(10)
+                 .build();
+     }
+ }
+ ```
+ - And, finally tell Feign Client to use this Fallback method on failure:
+ ```
+ @FeignClient(name = "${address.service.name:bookstore-address-service}",
+         fallbackFactory = AddressClientFactory.class)
+ public interface AddressFeignClient {
  }
  ```
 
