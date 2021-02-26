@@ -1,0 +1,12 @@
+package com.learning.bookstore.adapter.web.v1.request;
+
+import lombok.Getter;
+
+import javax.validation.constraints.NotBlank;
+
+@Getter
+public class UpdateShippingAddressRequest extends AddressRequest {
+    @NotBlank(message = "Billing address Id should not be blank")
+    private String id;
+
+}
