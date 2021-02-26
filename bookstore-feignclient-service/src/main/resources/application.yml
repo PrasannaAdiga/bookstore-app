@@ -1,0 +1,10 @@
+server:
+  port: ${SERVER_PORT:6001}
+
+feign:
+  circuitbreaker:
+    enabled: true
+
+logging:
+  level:
+    com.learning.bookstore.*: DEBUG
