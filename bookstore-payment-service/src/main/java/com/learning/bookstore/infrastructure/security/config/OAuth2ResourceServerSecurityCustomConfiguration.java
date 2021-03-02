@@ -44,7 +44,7 @@ public class OAuth2ResourceServerSecurityCustomConfiguration extends WebSecurity
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeRequests(authorize -> authorize
                         .antMatchers("/h2-console/**").permitAll()
-                        .antMatchers("/actuator/**").hasRole("Admin")
+                        .antMatchers("/actuator/**").permitAll()
                         .antMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
