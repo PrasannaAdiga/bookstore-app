@@ -1,9 +1,11 @@
 package com.learning.bookstore.web;
 
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Builder
 public class PaymentResponse {
     private String paymentId;

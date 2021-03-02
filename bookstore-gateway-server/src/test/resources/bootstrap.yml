@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+    bus:
+      enabled: false
+    consul:
+      enabled: false
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8083/auth/realms/Bookstore
+          jwk-set-uri: http://localhost:8083/auth/realms/Bookstore/protocol/openid-connect/certs

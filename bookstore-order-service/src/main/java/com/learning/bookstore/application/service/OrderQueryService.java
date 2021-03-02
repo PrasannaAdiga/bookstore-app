@@ -1,10 +1,5 @@
 package com.learning.bookstore.application.service;
 
-import com.learning.bookstore.adapter.client.AddressFeignClient;
-import com.learning.bookstore.adapter.client.PaymentFeignClient;
-import com.learning.bookstore.adapter.client.dto.BillingAddressResponse;
-import com.learning.bookstore.adapter.client.dto.PaymentMethodResponse;
-import com.learning.bookstore.adapter.client.dto.ShippingAddressResponse;
 import com.learning.bookstore.application.exception.InvalidPaymentMethodException;
 import com.learning.bookstore.application.exception.ResourceNotFoundException;
 import com.learning.bookstore.application.exception.UnauthorizedException;
@@ -13,8 +8,13 @@ import com.learning.bookstore.application.port.out.IOrderDataProvider;
 import com.learning.bookstore.application.service.response.CardResponse;
 import com.learning.bookstore.application.service.response.OrderItemResponse;
 import com.learning.bookstore.application.service.response.OrderResponse;
+import com.learning.bookstore.client.AddressFeignClient;
+import com.learning.bookstore.client.PaymentFeignClient;
 import com.learning.bookstore.domain.Order;
 import com.learning.bookstore.infrastructure.util.PrincipalResolver;
+import com.learning.bookstore.web.BillingAddressResponse;
+import com.learning.bookstore.web.PaymentMethodResponse;
+import com.learning.bookstore.web.ShippingAddressResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

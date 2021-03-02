@@ -1,7 +1,7 @@
 package com.learning.bookstore.application.service.response;
 
-import com.learning.bookstore.adapter.client.dto.BillingAddressResponse;
-import com.learning.bookstore.adapter.client.dto.ShippingAddressResponse;
+import com.learning.bookstore.web.BillingAddressResponse;
+import com.learning.bookstore.web.ShippingAddressResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

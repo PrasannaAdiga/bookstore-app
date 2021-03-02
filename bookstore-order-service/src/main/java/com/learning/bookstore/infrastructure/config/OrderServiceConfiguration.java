@@ -1,11 +1,11 @@
 package com.learning.bookstore.infrastructure.config;
 
-import com.learning.bookstore.adapter.client.AddressFeignClient;
-import com.learning.bookstore.adapter.client.CartFeignClient;
-import com.learning.bookstore.adapter.client.PaymentFeignClient;
 import com.learning.bookstore.application.port.out.IOrderDataProvider;
 import com.learning.bookstore.application.service.OrderCommandService;
 import com.learning.bookstore.application.service.OrderQueryService;
+import com.learning.bookstore.client.AddressFeignClient;
+import com.learning.bookstore.client.CartFeignClient;
+import com.learning.bookstore.client.PaymentFeignClient;
 import com.learning.bookstore.infrastructure.util.PrincipalResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

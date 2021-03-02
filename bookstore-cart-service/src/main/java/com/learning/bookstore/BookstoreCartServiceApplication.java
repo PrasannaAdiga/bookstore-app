@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
-@EnableFeignClients(basePackages = {"com.learning.bookstore.adapter.client"})
+@EnableFeignClients("com.learning.bookstore.client")
 public class BookstoreCartServiceApplication {
 
 	public static void main(String[] args) {

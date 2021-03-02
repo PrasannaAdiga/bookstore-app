@@ -1,9 +1,5 @@
 package com.learning.bookstore.application.service;
 
-import com.learning.bookstore.adapter.client.AddressFeignClient;
-import com.learning.bookstore.adapter.client.CartFeignClient;
-import com.learning.bookstore.adapter.client.PaymentFeignClient;
-import com.bookstore.learning.adapter.client.dto.*;
 import com.learning.bookstore.application.exception.EmptyCartException;
 import com.learning.bookstore.application.exception.InvalidPaymentMethodException;
 import com.learning.bookstore.application.port.in.IOrderCommandService;
@@ -14,10 +10,13 @@ import com.learning.bookstore.application.service.response.CardResponse;
 import com.learning.bookstore.application.service.response.OrderResponse;
 import com.learning.bookstore.application.service.response.OrderItemResponse;
 import com.learning.bookstore.application.service.response.PreviewOrderResponse;
+import com.learning.bookstore.client.AddressFeignClient;
+import com.learning.bookstore.client.CartFeignClient;
+import com.learning.bookstore.client.PaymentFeignClient;
 import com.learning.bookstore.domain.Order;
 import com.learning.bookstore.domain.OrderItem;
 import com.learning.bookstore.infrastructure.util.PrincipalResolver;
-import com.learning.bookstore.adapter.client.dto.*;
+import com.learning.bookstore.web.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -118,13 +117,13 @@ public class OrderCommandService implements IOrderCommandService {
                 .currency("USD")
                 .paymentMethodId(request.getPaymentMethodId())
                 .build();
-        CreatePaymentResponse createPaymentResponse = paymentFeignClient.doPayment(createPaymentRequest);
+        PaymentResponse paymentResponse = paymentFeignClient.doPayment(createPaymentRequest);
 
         //Update order with payment details
-        order.setPaid(createPaymentResponse.isCaptured());
-        order.setPaymentDate(createPaymentResponse.getPaymentDate());
-        order.setPaymentId(createPaymentResponse.getPaymentId());
-        order.setPaymentReceiptUrl(createPaymentResponse.getReceipt_url());
+        order.setPaid(paymentResponse.isCaptured());
+        order.setPaymentDate(paymentResponse.getPaymentDate());
+        order.setPaymentId(paymentResponse.getPaymentId());
+        order.setPaymentReceiptUrl(paymentResponse.getReceipt_url());
         order.setPaymentMethodId(request.getPaymentMethodId());
 
         //Save the order in DB
@@ -133,9 +132,9 @@ public class OrderCommandService implements IOrderCommandService {
         //Update createOrderResponse
         orderResponse.setOrderId(savedOrder.getId());
         orderResponse.setCreated_at(savedOrder.getCreationDate());
-        orderResponse.setPaid(createPaymentResponse.isCaptured());
-        orderResponse.setPaymentDate(createPaymentResponse.getPaymentDate());
-        orderResponse.setPaymentReceiptUrl(createPaymentResponse.getReceipt_url());
+        orderResponse.setPaid(paymentResponse.isCaptured());
+        orderResponse.setPaymentDate(paymentResponse.getPaymentDate());
+        orderResponse.setPaymentReceiptUrl(paymentResponse.getReceipt_url());
 
         //Clear cart
         cartFeignClient.removeAllCartItem(cartResponse.getId());

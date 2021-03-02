@@ -1,18 +1,16 @@
 package com.learning.bookstore.application.service.item;
-
-import com.learning.bookstore.adapter.client.ProductFeignClient;
 import com.learning.bookstore.application.exception.ResourceNotFoundException;
 import com.learning.bookstore.application.port.in.cart.ICartQueryService;
 import com.learning.bookstore.application.port.in.item.ICartItemCommandService;
 import com.learning.bookstore.application.port.out.ICartItemDataProvider;
-import com.learning.bookstore.application.service.item.response.ProductResponse;
+import com.learning.bookstore.client.ProductFeignClient;
 import com.learning.bookstore.domain.Cart;
 import com.learning.bookstore.domain.CartItem;
+import com.learning.bookstore.web.ProductResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -25,18 +23,6 @@ public class CartItemCommandService implements ICartItemCommandService {
     public String createCartItem(CartItem cartItem) {
         Cart cart = cartQueryService.getCartByUserEmail();
         ProductResponse productResponse = productFeignClient.getProductById(cartItem.getProductId());
-//Comment the above line and un-comment below lines for standalone testing
-//        ProductResponse productResponse = ProductResponse.builder()
-//                .id(UUID.randomUUID().toString())
-//                .availableCount(5)
-//                .averageRating(3.5)
-//                .categoryId("f23bfeed-23a8-45d8-a702-1614dacdd849")
-//                .description("Description")
-//                .imageId(UUID.randomUUID().toString())
-//                .noOfRatings(10)
-//                .name("Mac Book Air")
-//                .price(70000)
-//                .build();
         exitIfNoEnoughQuantityFound(productResponse.getAvailableCount(), cartItem.getQuantity());
         return createOrUpdateCartItem(cart, productResponse, cartItem.getQuantity());
     }

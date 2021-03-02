@@ -1,7 +1,9 @@
 package com.learning.bookstore.web;
 
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 @Builder
 public class ShippingAddressResponse {
     private String id;

@@ -8,8 +8,18 @@ group = 'com.bookstore.learning'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
 repositories {
 	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "Hoxton.SR10")
 }
 
 dependencies {
@@ -22,6 +32,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+	implementation 'org.springframework.retry:spring-retry'
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-consul-all'
 
 	implementation 'org.springdoc:springdoc-openapi-ui:1.5.2'
 	implementation 'org.springdoc:springdoc-openapi-webmvc-core:1.5.2'
@@ -37,6 +52,12 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
 }
 
 test {

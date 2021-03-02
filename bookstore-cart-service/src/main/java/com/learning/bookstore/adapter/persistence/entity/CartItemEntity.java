@@ -1,10 +1,7 @@
 package com.learning.bookstore.adapter.persistence.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
 
@@ -16,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 @Table(name = "Cart_Item")
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItemEntity extends Auditor<String> {

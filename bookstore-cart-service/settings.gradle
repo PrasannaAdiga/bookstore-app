@@ -1,1 +1,9 @@
+pluginManagement {
+    plugins {
+        id 'org.springframework.boot' version "2.3.9.RELEASE"
+        id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    }
+}
 rootProject.name = 'bookstore-cart-service'
+include ':bookstore-feignclient-service'
+project(':bookstore-feignclient-service').projectDir = new File(settingsDir, '../bookstore-feignclient-service')

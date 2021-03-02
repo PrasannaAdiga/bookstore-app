@@ -2,4 +2,15 @@ spring:
   application:
     name: bookstore-gateway-server
 
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local_zone1}
 
+  cloud:
+    config:
+      uri: http://localhost:8888
+      fail-fast: true
+      retry:
+        initial-interval: 60000
+        multiplier: 1.5
+        max-attempts: 1000
+        max-interval: 5000
