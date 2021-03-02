@@ -1,12 +1,54 @@
 # bookstore-app
 
 # Distributed Configuration
-By using Consul
+By using Spring Cloud Config Server and Config Client
 
+Register Config Server with Consul
+#### Config Server
+ - Add the dependency 'spring-cloud-config-server' and 'spring-cloud-starter-consul-all'
+ - Add the annotation '@EnableConfigServer' into main application
+ ```
+ @SpringBootApplication
+ @EnableConfigServer
+ public class BookstoreConfigServerApplication {
+ }
+ ```
+ - Add below configuration details to bootstrap.yml
+ ```
+ spring:
+   cloud:
+     config:
+       server:
+         #git:
+         #uri: #Provide Git URI here if we use to connect to Git Repo
+         native:
+           searchLocations: classpath:/config-repo
+     cloud:
+       consul:
+         discovery:
+           instance-id: ${spring.application.name}:${random.int[1,999999]}
+ ```
+ - Create a new folder 'config-repo' under the path 'src/main/resources' and create different yml files for each of the microservice with corresponding microservice's application name as file name. Keep all configurations related to different profile here.
+  
+#### Config Client
+ - Add the dependency 'spring-cloud-starter-config' and 'spring-retry' in each of the microservices which needs to connect to Config Server
+ - Add the below configuration details in each microservice 'bootstrap.yml' file in order to connect to Config Server while booting up along with spring retry configuration(Required to make microservice to wait until config server is up and running).
+ ```
+ cloud:
+   config:
+     uri: http://localhost:8888
+     fail-fast: true
+     retry:
+       initial-interval: 60000
+       multiplier: 1.5
+       max-attempts: 1000
+       max-interval: 5000
+ ```
 
 # Naming Server or Discovery Server or Registry Server. 
 By Using Consul
 
+#### Consul Server
 To Create Consul Cluster using Docker follow the below steps:
 1. Type the command ‘docker run -d --name consul-1 -p 8500:8500 -e CONSUL_BIND_INTERFACE=eth0 consul’
 2. Type the command ‘docker inspect consul-1’. Copy the IP address.
@@ -16,7 +58,7 @@ To Create Consul Cluster using Docker follow the below steps:
 6. Access the Consul UI: http://localhost:8500/
 7. Refer: https://piotrminkowski.com/2019/11/06/microservices-with-spring-boot-spring-cloud-gateway-and-consul-cluster/
 
-# Microservices to register with Consul
+#### Microservices as Consul Client
 By using Spring Cloud Consul
 
  - Add the dependency 'spring-cloud-starter-consul-all' --> This includes both spring-cloud-consul-discovery and spring-cloud-consul-config
@@ -64,6 +106,7 @@ By using Spring Cloud Consul
 # API Gateway 
 By using Spring Cloud Gateway
 
+Register API Gateway server with Consul
  - Use API Gateway server to expose each microservice on a static port to an external client applications, as microservices will be running on random ports
  - We don’t need to register gateway in Consul discovery, because it is not accessed internally. But, we integrate Gateway server to Consul discovery as Gateway server needs to get details of running microservice instances
  - If the Zone Affinity Mechanism in Consul is enabled, then we can run multiple instances of API Gateway in each zones
@@ -102,8 +145,9 @@ Along with Client Side Load Balancer and Circuit Breaker
 By Using Spring Cloud OpenFeign with Spring Cloud LoadBalancer(Load Balancer) and spring-cloud-starter-circuitbreaker-resilience4j(Circuit Breaker)  
 
  - Add the dependency 'spring-cloud-starter-openfeign' and 'spring-cloud-starter-circuitbreaker-resilience4j'
+ - Add the dependency 'resilience4j-micrometer' along with 'spring-boot-actuator', which will provide additional metrics related to api gateway routers.
  - By default, Spring Cloud OpenFeign uses Spring Cloud LoadBalance as a client side load balancer.
- - The OpenFeign will auto-integrate with service discovery like Consul. 
+ - The OpenFeign will auto-integrate with service discovery like Consul, if 'spring-cloud-starter-consul-all' is in classpath
  - To use it we need to declare an interface with required methods for communication. Method signature must be similar to the one which is defined in the actual microservice.
  - The interface has to be annotated with @FeignClient that points to the service using its discovery name as registered in Consul.
  ```
@@ -113,7 +157,9 @@ By Using Spring Cloud OpenFeign with Spring Cloud LoadBalancer(Load Balancer) an
      BillingAddressResponse getBillingAddressById(@PathVariable("id") String id);
  }
  ```
-#### Resilience4j
+#### Load Balancer
+ - By default, OpenFeign uses Spring Cloud Load Balancer as a Load Balancer
+#### Circuit Breaker
  - Spring Cloud OpenFeign uses Resilience4j as Circuit Breaker if 'spring-cloud-starter-circuitbreaker-resilience4j' is in the classpath, and the below configuration set:
  ```
  feign:
@@ -149,11 +195,32 @@ By Using Spring Cloud OpenFeign with Spring Cloud LoadBalancer(Load Balancer) an
  ```
 
 # Authorization Server
-By Using Embedded Keycloak
+By Using Keycloak 
  - Keycloak is an OAuth2 Authorization Server which will implement both OAuth2 and OpenId Connect protocols to provide access and id tokens for OAuth2 Client applications. 
  - These tokens will contains user identity and access/role related information
  - Later OAuth2 client applications will use these tokens to access any protected resources from OAuth2 Resource Server.
- - Follow the list of available links here: https://www.baeldung.com/tag/keycloak/
+ - In this product, we have used Embedded Keycloak along with customized themes as mentioned in the series of article in the link: https://www.baeldung.com/tag/keycloak/ 
  - By following the above link, we can implement an Embedded Keycloak Authorization server with build in support for the user registration, user login, Forgot Password, Remember Me, SSO, custom Themes and Pages etc
  - bookstore-realm.json file contains all the configuration in the json form, to create Keycloak Realm(Bookstore), Client(product-service), Roles(Admin, Buyer), Users(Admin User, Buyer User) with a password and mapped roles etc.
  
+#Testing
+By using JUnit
+ - Add the dependency 'spring-boot-starter-test'
+ - Add a new folder 'resources' in the path 'src/test' and create a new file 'bootstrap.yml' under that
+ - Add the below configuration details in this yml file to disable spring cloud config server and spring cloud consul server while running test cases along with providing required properties.
+ ```
+ spring:
+   cloud:
+     config:
+       enabled: false
+     discovery:
+       enabled: false
+     bus:
+       enabled: false
+     consul:
+       enabled: false
+       discovery:
+         enabled: false
+       config:
+         enabled: false
+ ```

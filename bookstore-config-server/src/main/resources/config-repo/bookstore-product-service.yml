@@ -1,18 +1,43 @@
 server:
-  port: ${SERVER_PORT:6001}
+  port: ${SERVER_PORT:0}
 
 spring:
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:local}
+  flyway:
+    table: service_product_flyway_history
+    baseline-on-migrate: true
+    baseline-version: 0.9
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  cloud:
+    consul:
+      discovery:
+        instance-id: ${spring.application.name}:${random.int[1,999999]}
 
 logging:
   level:
     com.learning.bookstore.*: DEBUG
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
+
 ---
 
 spring:
-  profiles: local
+  profiles: local_zone1
+  cloud:
+    consul:
+      discovery:
+        instance-zone: zone1
   security:
     oauth2:
       resourceserver:
@@ -34,7 +59,46 @@ spring:
         format_sql: true
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:bookstore_payment_db;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:bookstore_product_db;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /h2-console
+
+---
+
+spring:
+  profiles: local_zone2
+  cloud:
+    consul:
+      discovery:
+        instance-zone: zone2
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8083/auth/realms/Bookstore
+          jwk-set-uri: http://localhost:8083/auth/realms/Bookstore/protocol/openid-connect/certs
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    database: h2
+    open-in-view: true
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        show_sql: true
+        use_sql_comments: true
+        format_sql: true
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:bookstore_product_db;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;DB_CLOSE_ON_EXIT=FALSE
     username: sa
     password:
   h2:

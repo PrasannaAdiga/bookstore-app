@@ -1,7 +1,4 @@
 spring:
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:local_zone1}
-
   cloud:
     gateway:
       discovery:
@@ -47,7 +44,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
 
 ---
 

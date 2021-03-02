@@ -1,0 +1,32 @@
+server:
+  port: ${SERVER_PORT:8888}
+
+spring:
+  application:
+    name: bookstore-config-server
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:native} # To connect to local folder path
+  #Spring Cloud Config Server Configurations
+  cloud:
+    config:
+      server:
+        #git:
+        #uri:
+        native:
+          searchLocations: classpath:/config-repo
+    cloud:
+      consul:
+        discovery:
+          instance-id: ${spring.application.name}:${random.int[1,999999]}
+
+#Spring Boot Actuator Configurations
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+
+logging:
+  level:
+    com.learning.bookstore.*: DEBUG
+
