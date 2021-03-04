@@ -1,0 +1,20 @@
+feign:
+  circuitbreaker:
+    enabled: true #To use Spring Cloud Circuit Breaker Resilience4j which should be added in the classpath instead of Hystrix
+  hystrix:
+    enabled: false
+  client:
+    config:
+      default:
+        connectTimeout: 1000
+        readTimeout: 1000
+        loggerLevel: basic
+        errorDecoder: com.learning.bookstore.decoder.FeignClientErrorDecoder
+        retryer: com.learning.bookstore.retry.FeignClientRetry
+
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false #To use Spring Cloud Load Balancer which should be added in the classpath instead of Ribbon
+

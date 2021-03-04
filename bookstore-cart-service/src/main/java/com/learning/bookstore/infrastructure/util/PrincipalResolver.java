@@ -11,4 +11,9 @@ public class PrincipalResolver {
         return ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                 .getClaimAsString(CartServiceConstant.ACCESS_TOKEN_EMAIL_FIELD_NAME);
     }
+
+    public String getCurrentLoggedInUserToken() {
+        return ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .getTokenValue();
+    }
 }

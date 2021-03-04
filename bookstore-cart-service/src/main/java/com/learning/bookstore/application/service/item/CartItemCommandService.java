@@ -6,6 +6,7 @@ import com.learning.bookstore.application.port.out.ICartItemDataProvider;
 import com.learning.bookstore.client.ProductFeignClient;
 import com.learning.bookstore.domain.Cart;
 import com.learning.bookstore.domain.CartItem;
+import com.learning.bookstore.infrastructure.util.PrincipalResolver;
 import com.learning.bookstore.web.ProductResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +19,12 @@ public class CartItemCommandService implements ICartItemCommandService {
     private final ICartQueryService cartQueryService;
     private final ICartItemDataProvider cartItemDataManager;
     private final ProductFeignClient productFeignClient;
+    private final PrincipalResolver principalResolver;
 
     @Override
     public String createCartItem(CartItem cartItem) {
         Cart cart = cartQueryService.getCartByUserEmail();
-        ProductResponse productResponse = productFeignClient.getProductById(cartItem.getProductId());
+        ProductResponse productResponse = productFeignClient.getProductById("Bearer " + principalResolver.getCurrentLoggedInUserToken(), cartItem.getProductId());
         exitIfNoEnoughQuantityFound(productResponse.getAvailableCount(), cartItem.getQuantity());
         return createOrUpdateCartItem(cart, productResponse, cartItem.getQuantity());
     }
@@ -52,7 +54,7 @@ public class CartItemCommandService implements ICartItemCommandService {
             log.error("ResourceNotFoundException in CartItemCommandService.createCartItem: Not enough quantity found. Requested product item counts {}. " +
                     "Available product counts {}", requestedProductQuantity, availableProductQuantity);
             throw new ResourceNotFoundException("Not enough quantity found. Requested product item counts " + requestedProductQuantity +
-                    "Available product counts " + availableProductQuantity);
+                    " Available product counts " + availableProductQuantity);
         }
     }
 

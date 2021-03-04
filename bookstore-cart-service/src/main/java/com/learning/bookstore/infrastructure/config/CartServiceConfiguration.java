@@ -32,8 +32,9 @@ public class CartServiceConfiguration {
 
     @Bean
     public CartItemCommandService cartItemCommandService(ICartQueryService cartQueryService,
-                                                         ICartItemDataProvider cartItemDataProvider) {
-        return new CartItemCommandService(cartQueryService, cartItemDataProvider, productFeignClient);
+                                                         ICartItemDataProvider cartItemDataProvider,
+                                                         PrincipalResolver principalResolver) {
+        return new CartItemCommandService(cartQueryService, cartItemDataProvider, productFeignClient, principalResolver);
     }
 
     @Bean
