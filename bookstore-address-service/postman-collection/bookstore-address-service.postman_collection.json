@@ -1,0 +1,309 @@
+{
+	"info": {
+		"_postman_id": "093badbb-8f05-4f51-8a0b-d4ef0eda12c5",
+		"name": "bookstore-address-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create_billing_address",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userEmail\": \"admin@test.com\",\n    \"addressLine1\": \"addressLine1\",\n    \"addressLine2\": \"addressLine2\",\n    \"city\": \"city\",\n    \"state\": \"state\",\n    \"postalCode\": \"123456\",\n    \"country\": \"IN\",\n    \"phone\": \"1023456789\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:50765/v1/billing-addresses",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50765",
+					"path": [
+						"v1",
+						"billing-addresses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create_shipping_address",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userEmail\": \"admin@test.com\",\n    \"addressLine1\": \"addressLine1\",\n    \"addressLine2\": \"addressLine2\",\n    \"city\": \"city\",\n    \"state\": \"state\",\n    \"postalCode\": \"123456\",\n    \"country\": \"IN\",\n    \"phone\": \"1023456789\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:50765/v1/shipping-addresses",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50765",
+					"path": [
+						"v1",
+						"shipping-addresses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_billing_address",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:50765/v1/billing-addresses",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50765",
+					"path": [
+						"v1",
+						"billing-addresses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_shipping_address",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:50765/v1/shipping-addresses",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50765",
+					"path": [
+						"v1",
+						"shipping-addresses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_billing_address_by_id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:50765/v1/billing-addresses/8a3c4997-4911-4df8-a83c-0ba3ca08b272",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50765",
+					"path": [
+						"v1",
+						"billing-addresses",
+						"8a3c4997-4911-4df8-a83c-0ba3ca08b272"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_shipping_address_by_id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:50765/v1/shipping-addresses/9b97fb93-3585-4671-9fc4-1eddd51d96b4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50765",
+					"path": [
+						"v1",
+						"shipping-addresses",
+						"9b97fb93-3585-4671-9fc4-1eddd51d96b4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update_billing_address",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"8a3c4997-4911-4df8-a83c-0ba3ca08b272\",\n    \"userEmail\": \"admin@test.com\",\n    \"addressLine1\": \"new_addressLine1\",\n    \"addressLine2\": \"new_addressLine2\",\n    \"city\": \"new_city\",\n    \"state\": \"new_state\",\n    \"postalCode\": \"123789\",\n    \"country\": \"IN\",\n    \"phone\": \"1023456987\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:50765/v1/billing-addresses",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50765",
+					"path": [
+						"v1",
+						"billing-addresses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update_shipping_address",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"9b97fb93-3585-4671-9fc4-1eddd51d96b4\",\n    \"userEmail\": \"admin@test.com\",\n    \"addressLine1\": \"new_addressLine1\",\n    \"addressLine2\": \"new_addressLine2\",\n    \"city\": \"new_city\",\n    \"state\": \"new_state\",\n    \"postalCode\": \"123789\",\n    \"country\": \"IN\",\n    \"phone\": \"1023456987\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:50765/v1/shipping-addresses",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50765",
+					"path": [
+						"v1",
+						"shipping-addresses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete_billing_address_by_id",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:50765/v1/billing-addresses/8a3c4997-4911-4df8-a83c-0ba3ca08b272",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50765",
+					"path": [
+						"v1",
+						"billing-addresses",
+						"8a3c4997-4911-4df8-a83c-0ba3ca08b272"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete_shipping_address_by_id",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:50765/v1/shipping-addresses/9b97fb93-3585-4671-9fc4-1eddd51d96b4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50765",
+					"path": [
+						"v1",
+						"shipping-addresses",
+						"9b97fb93-3585-4671-9fc4-1eddd51d96b4"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

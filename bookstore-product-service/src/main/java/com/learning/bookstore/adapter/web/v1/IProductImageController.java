@@ -20,7 +20,7 @@ import java.io.IOException;
 @RequestMapping("/v1/products/")
 @Validated
 public interface IProductImageController {
-    @PostMapping(value = "images/upload", params = "imageFile")
+    @PostMapping(value = "images/upload")
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Create or update a product image", responses = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),

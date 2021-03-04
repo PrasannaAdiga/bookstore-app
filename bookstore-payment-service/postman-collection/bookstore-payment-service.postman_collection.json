@@ -1,0 +1,132 @@
+{
+	"info": {
+		"_postman_id": "ce302228-393b-4034-9900-6594b44631a2",
+		"name": "bookstore-payment-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create_payment_method",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"firstName\",\n    \"lastName\": \"lastName\",\n    \"cardNumber\": \"5555555555554444\",\n    \"last4Digits\": \"4444\",\n    \"expirationMonth\": \"12\",\n    \"expirationYear\": \"2022\",\n    \"cvv\": \"876\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:59547/v1/payment-methods",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "59547",
+					"path": [
+						"v1",
+						"payment-methods"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "do_payment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": \"50\",\n    \"currency\": \"inr\",\n    \"paymentMethodId\": \"pm_1IRJ4IDGcSFaTwuTuVTdPQTj\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:59547/v1/payments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "59547",
+					"path": [
+						"v1",
+						"payments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_payment_method",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:59547/v1/payment-methods",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "59547",
+					"path": [
+						"v1",
+						"payment-methods"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_payment_method_by_id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:59547/v1/payment-methods/pm_1IRJ4IDGcSFaTwuTuVTdPQTj",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "59547",
+					"path": [
+						"v1",
+						"payment-methods",
+						"pm_1IRJ4IDGcSFaTwuTuVTdPQTj"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

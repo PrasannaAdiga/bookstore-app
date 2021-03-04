@@ -1,0 +1,129 @@
+{
+	"info": {
+		"_postman_id": "d74047f1-ca99-401d-bb79-371d87856f6b",
+		"name": "bookstore-config-server",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "get_bookstore_address_service_properties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8888/config-repo/bookstore-address-service-local_zone1.yml",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"config-repo",
+						"bookstore-address-service-local_zone1.yml"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_bookstore_cart_service_properties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8888/config-repo/bookstore-cart-service-local_zone1.yml",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"config-repo",
+						"bookstore-cart-service-local_zone1.yml"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_bookstore_gateway_server_properties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8888/config-repo/bookstore-gateway-server-local_zone1.yml",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"config-repo",
+						"bookstore-gateway-server-local_zone1.yml"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_bookstore_order_service_properties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8888/config-repo/bookstore-order-service-local_zone1.yml",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"config-repo",
+						"bookstore-order-service-local_zone1.yml"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_bookstore_payment_service_properties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8888/config-repo/bookstore-payment-service-local_zone1.yml",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"config-repo",
+						"bookstore-payment-service-local_zone1.yml"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_bookstore_product_service_properties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8888/config-repo/bookstore-product-service-local_zone1.yml",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"config-repo",
+						"bookstore-product-service-local_zone1.yml"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

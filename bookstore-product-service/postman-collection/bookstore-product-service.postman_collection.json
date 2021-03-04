@@ -1,0 +1,508 @@
+{
+	"info": {
+		"_postman_id": "852f33bb-5083-45aa-9c9d-c397b66ce3e8",
+		"name": "bookstore-product-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create_product_category",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"productCategoryName\": \"category name\",\n    \"productCategoryDescription\": \"category description\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:58014/v1/products/categories",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products",
+						"categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create_product",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"productName\": \"product name\",\n    \"productDescription\": \"product description\",\n    \"productPrice\": \"200.0\",\n    \"productImageId\": \"\",\n    \"availableProductCount\": \"10\",\n    \"productCategoryId\": \"bdb581af-3542-45e1-979e-56e277378955\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:58014/v1/products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create_product_review",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"productId\": \"bdb581af-3542-45e1-979e-56e277378965\",\n    \"userId\": \"admin@test.com\",\n    \"rating\": 5,\n    \"message\": \"Very Good\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:58014/v1/products/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update_product_category",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"productCategoryId\": \"1bc11ec1-6ec1-400c-b298-2c85e81d5deb\",\n    \"productCategoryName\": \"new category name\",\n    \"productCategoryDescription\": \"New category description\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:58014/v1/products/categories",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products",
+						"categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update_product",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"productId\": \"dde47950-2917-4515-88dd-d08fe2c53cc4\",\n    \"productName\": \"new product name\",\n    \"productDescription\": \"New product description\",\n    \"productPrice\": \"200.0\",\n    \"productImageId\": \"\",\n    \"availableProductCount\": \"20\",\n    \"productCategoryId\": \"bdb581af-3542-45e1-979e-56e277378955\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:58014/v1/products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update_product_review",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"880f6b27-44d0-4bc0-a641-e66e5a4b3adf\",\n    \"productId\": \"bdb581af-3542-45e1-979e-56e277378965\",\n    \"userId\": \"admin@test.com\",\n    \"rating\": 4,\n    \"message\": \"Very very Good\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:58014/v1/products/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete_product_category_by_id",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:58014/v1/products/categories/1bc11ec1-6ec1-400c-b298-2c85e81d5deb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products",
+						"categories",
+						"1bc11ec1-6ec1-400c-b298-2c85e81d5deb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete_product_by_id",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:58014/v1/products/dde47950-2917-4515-88dd-d08fe2c53cc4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products",
+						"dde47950-2917-4515-88dd-d08fe2c53cc4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_product_category_by_id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:58014/v1/products/categories/1bc11ec1-6ec1-400c-b298-2c85e81d5deb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products",
+						"categories",
+						"1bc11ec1-6ec1-400c-b298-2c85e81d5deb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_product_by_id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:58014/v1/products/dde47950-2917-4515-88dd-d08fe2c53cc4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products",
+						"dde47950-2917-4515-88dd-d08fe2c53cc4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_product_category",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:58014/v1/products/categories?page=0&size=10&sort=name",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products",
+						"categories"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "10"
+						},
+						{
+							"key": "sort",
+							"value": "name"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_product",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:58014/v1/products?page=2&size=10&sort=name",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "2"
+						},
+						{
+							"key": "size",
+							"value": "10"
+						},
+						{
+							"key": "sort",
+							"value": "name"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_product_review",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:58014/v1/products/bdb581af-3542-45e1-979e-56e277378965/reviews",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "58014",
+					"path": [
+						"v1",
+						"products",
+						"bdb581af-3542-45e1-979e-56e277378965",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_an_image_of_product",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:64264/v1/products/images/1ecfd5c4-dba2-4feb-bd88-006105a8d5ab__alchemist.jpg",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "64264",
+					"path": [
+						"v1",
+						"products",
+						"images",
+						"1ecfd5c4-dba2-4feb-bd88-006105a8d5ab__alchemist.jpg"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "upload_an_image_of_a_product",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "imageFile",
+							"type": "file",
+							"src": "/Users/prasannaadiga/Desktop/bookstore.jpg"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:49957/v1/products/images/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "49957",
+					"path": [
+						"v1",
+						"products",
+						"images",
+						"upload"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

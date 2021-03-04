@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
+import java.nio.file.NoSuchFileException;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
@@ -56,6 +57,17 @@ public class CustomAPIExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
         return new ResponseEntity<>(restApiResponseErrorMessage, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoSuchFileException.class)
+    public ResponseEntity<RestApiResponseErrorMessage> handleNoSuchFileException(final Exception exception, final HttpServletRequest request) {
+        RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error("No such image file found!")
+                .message(exception.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(restApiResponseErrorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

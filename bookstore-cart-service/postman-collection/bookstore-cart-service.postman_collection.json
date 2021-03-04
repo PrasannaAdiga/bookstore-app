@@ -1,0 +1,158 @@
+{
+	"info": {
+		"_postman_id": "faa0706a-d99e-46dd-bc27-110171231c67",
+		"name": "bookstore-cart-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create_cart_for_logged_in_user",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:51881/v1/carts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "51881",
+					"path": [
+						"v1",
+						"carts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_cart_for_logged_in_user",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:51881/v1/carts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "51881",
+					"path": [
+						"v1",
+						"carts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add_cart_item_for_a_cart",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"productId\": \"bdb581af-3542-45e1-979e-56e277378963\",\n    \"quantity\": \"2\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:51881/v1/carts/items",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "51881",
+					"path": [
+						"v1",
+						"carts",
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove_cart_item_by_id",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:51881/v1/carts/items/24d99891-bafc-4c8c-89b3-8e7eb3e38a0d",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "51881",
+					"path": [
+						"v1",
+						"carts",
+						"items",
+						"24d99891-bafc-4c8c-89b3-8e7eb3e38a0d"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove_all_cart_item_of_a_cart_by_cartid",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:51881/v1/carts/items?cartId=67b5e7d4-60c1-4eac-84e1-c06ed92098cd",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "51881",
+					"path": [
+						"v1",
+						"carts",
+						"items"
+					],
+					"query": [
+						{
+							"key": "cartId",
+							"value": "67b5e7d4-60c1-4eac-84e1-c06ed92098cd"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

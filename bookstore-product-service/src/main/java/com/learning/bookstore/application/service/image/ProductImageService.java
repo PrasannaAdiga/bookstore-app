@@ -45,4 +45,5 @@ public class ProductImageService implements IProductImageService {
         });
         return new ByteArrayResource(Files.readAllBytes(images.get()));
     }
+
 }
