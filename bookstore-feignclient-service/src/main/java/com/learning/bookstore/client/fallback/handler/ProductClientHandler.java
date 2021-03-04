@@ -6,9 +6,8 @@ import com.learning.bookstore.web.ProductResponse;
 
 public class ProductClientHandler implements ProductFeignClient {
     @Override
-    public ProductResponse getProductById(String id) {
-        return ProductResponse.builder()
-                .build();
+    public ProductResponse getProductById(String authorizationHeader, String id) {
+        return null;
     }
 
 }
