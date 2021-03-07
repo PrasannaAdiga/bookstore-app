@@ -1,0 +1,6 @@
+feign:
+  client:
+    config:
+      default:
+        errorDecoder: com.learning.bookstore.decoder.FeignClientErrorDecoder
+        retryer: com.learning.bookstore.retry.FeignClientRetry
