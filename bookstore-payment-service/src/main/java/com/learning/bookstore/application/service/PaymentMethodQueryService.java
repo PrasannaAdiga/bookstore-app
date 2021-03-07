@@ -53,7 +53,8 @@ public class PaymentMethodQueryService implements IPaymentMethodQueryService {
         exitIfNoPaymentCustomerFound(userPaymentCustomer);
         try {
             PaymentMethod paymentMethod = PaymentMethod.retrieve(paymentMethodId);
-            exitIfUnauthorized(userPaymentCustomer, paymentMethod);
+            //Commented below code to return all existing payment method ids for admin user
+            //exitIfUnauthorized(userPaymentCustomer, paymentMethod);
             return PaymentMethodType.builder()
                     .id(paymentMethod.getId())
                     .cardCountry(paymentMethod.getCard().getCountry())

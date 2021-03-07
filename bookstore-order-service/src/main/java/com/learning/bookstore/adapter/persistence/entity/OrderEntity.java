@@ -78,7 +78,6 @@ public class OrderEntity extends Auditor<String> {
     private String paymentReceiptUrl;
 
     @Column(name = "delivered_date")
-    @NotNull(message = "Delivered Date should not be null")
     private LocalDateTime deliveredDate;
 
     @Column(name = "is_delivered")

@@ -3,8 +3,10 @@ package com.learning.bookstore.application.service.response;
 import com.learning.bookstore.web.BillingAddressResponse;
 import com.learning.bookstore.web.ShippingAddressResponse;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +18,9 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderResponse {
     private String orderId;
-    private List<OrderItemResponse> orderItems;
+    @Builder.Default
+    @JsonIgnore
+    private List<OrderItemResponse> orderItems = new ArrayList<>();
     private ShippingAddressResponse shippingAddress;
     private BillingAddressResponse billingAddress;
     private CardResponse card;

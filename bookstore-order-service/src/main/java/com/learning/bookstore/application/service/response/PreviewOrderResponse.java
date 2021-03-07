@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -14,7 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PreviewOrderResponse {
-    private List<OrderItemResponse> orderItems;
+    @Builder.Default
+    private List<OrderItemResponse> orderItems = new ArrayList<>();
     private ShippingAddressResponse shippingAddress;
     private BillingAddressResponse billingAddress;
     private CardResponse card;

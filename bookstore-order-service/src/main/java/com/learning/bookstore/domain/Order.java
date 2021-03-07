@@ -1,19 +1,20 @@
 package com.learning.bookstore.domain;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
 public class Order extends Audit {
     private String id;
 
@@ -21,7 +22,8 @@ public class Order extends Audit {
     private String userEmail;
 
     @NotEmpty(message = "Order items should not be empty")
-    private List<OrderItem> orderItems;
+    @Builder.Default
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @Positive(message = "Total items price should be positive")
     private double totalItemsPrice;

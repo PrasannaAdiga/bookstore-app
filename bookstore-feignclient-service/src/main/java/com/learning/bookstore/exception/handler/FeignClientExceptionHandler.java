@@ -47,5 +47,16 @@ public class FeignClientExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponseErrorMessage);
     }
 
+    @ExceptionHandler(FeignException.BadRequest.class)
+    public ResponseEntity<ApiResponseErrorMessage> handleFeignExceptionBadRequest(final Exception exception, final HttpServletRequest request) {
+        ApiResponseErrorMessage apiResponseErrorMessage = ApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(exception.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponseErrorMessage);
+    }
+
 }
 

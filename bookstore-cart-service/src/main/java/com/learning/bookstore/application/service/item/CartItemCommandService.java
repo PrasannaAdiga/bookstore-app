@@ -24,7 +24,8 @@ public class CartItemCommandService implements ICartItemCommandService {
     @Override
     public String createCartItem(CartItem cartItem) {
         Cart cart = cartQueryService.getCartByUserEmail();
-        ProductResponse productResponse = productFeignClient.getProductById("Bearer " + principalResolver.getCurrentLoggedInUserToken(), cartItem.getProductId());
+        ProductResponse productResponse = productFeignClient.getProductById(
+                "Bearer " + principalResolver.getCurrentLoggedInUserToken(), cartItem.getProductId());
         exitIfNoEnoughQuantityFound(productResponse.getAvailableCount(), cartItem.getQuantity());
         return createOrUpdateCartItem(cart, productResponse, cartItem.getQuantity());
     }

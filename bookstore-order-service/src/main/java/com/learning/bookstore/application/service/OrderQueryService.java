@@ -33,6 +33,7 @@ public class OrderQueryService implements IOrderQueryService {
     @Override
     public OrderResponse getOrderOfUserById(String orderId) {
         String loggedInUserEmail = principalResolver.getCurrentLoggedInUserMail();
+        String loggedInUserToken = principalResolver.getCurrentLoggedInUserToken();
         Optional<Order> order = orderDataProvider.getOrderById(orderId);
         order.orElseThrow(() -> {
             log.error("ResourceNotFoundException in OrderQueryService.getOrderOfUserById: No order found with id {}", orderId);
@@ -42,11 +43,10 @@ public class OrderQueryService implements IOrderQueryService {
             log.error("UnauthorizedException in OrderQueryService.getOrderOfUserById: Order doesn't belong to the user {}", loggedInUserEmail);
             throw new UnauthorizedException("Order doesn't belong to the user " + loggedInUserEmail);
         }
-
         //Set card details
         CardResponse card = null;
         try {
-            PaymentMethodResponse paymentMethodResponse = paymentFeignClient.getPaymentMethodOfUserById(order.get().getPaymentMethodId());
+            PaymentMethodResponse paymentMethodResponse = paymentFeignClient.getPaymentMethodOfUserById("Bearer " + loggedInUserToken, order.get().getPaymentMethodId());
             card = CardResponse.builder()
                     .last4Digits(paymentMethodResponse.getCardLast4Digits())
                     .cardBrand(paymentMethodResponse.getCardType())
@@ -57,10 +57,9 @@ public class OrderQueryService implements IOrderQueryService {
             throw new InvalidPaymentMethodException("Invalid payment method with Id " + order.get().getPaymentMethodId());
         }
 
-
-        BillingAddressResponse billingAddress = addressFeignClient.getBillingAddressById(order.get().getBillingAddressId());
-        ShippingAddressResponse shippingAddress = addressFeignClient.getShippingAddressById(order.get().getShippingAddressId());
-
+        //set billing and shipping address
+        BillingAddressResponse billingAddress = addressFeignClient.getBillingAddressById("Bearer " + loggedInUserToken, order.get().getBillingAddressId());
+        ShippingAddressResponse shippingAddress = addressFeignClient.getShippingAddressById("Bearer " + loggedInUserToken, order.get().getShippingAddressId());
         List<OrderItemResponse> orderItemResponses = new ArrayList<>();
         order.get().getOrderItems().forEach(orderItem -> {
             orderItemResponses.add(OrderItemResponse.builder()
@@ -69,7 +68,6 @@ public class OrderQueryService implements IOrderQueryService {
                     .quantity(orderItem.getQuantity())
                     .orderItemPrice(orderItem.getOrderItemPrice())
                     .orderExtendedPrice(orderItem.getOrderExtendedPrice())
-                    .order(orderItem.getOrder())
                     .build());
         });
         OrderResponse orderResponse = OrderResponse.builder()
@@ -87,7 +85,6 @@ public class OrderQueryService implements IOrderQueryService {
                 .taxPrice(order.get().getTaxPrice())
                 .totalPrice(order.get().getTotalOrderPrice())
                 .build();
-
         return orderResponse;
     }
 
@@ -106,24 +103,23 @@ public class OrderQueryService implements IOrderQueryService {
     public List<OrderResponse> getAllPlacedOrder() {
         Optional<List<Order>> order = orderDataProvider.getAllPlacedOrder();
         order.orElseThrow(() -> {
-            log.error("ResourceNotFoundException in OrderQueryService.getOrderOfUserById: No order found for the user email {}",
-                    principalResolver.getCurrentLoggedInUserMail());
+            log.error("ResourceNotFoundException in OrderQueryService.getOrderOfUserById: No order found for the user email {}", principalResolver.getCurrentLoggedInUserMail());
             throw new ResourceNotFoundException("No order found for the user email " + principalResolver.getCurrentLoggedInUserMail());
         });
         return buildOrderResponse(order.get());
     }
 
     private List<OrderResponse> buildOrderResponse(List<Order> orders) {
+        String loggedInUserToken = principalResolver.getCurrentLoggedInUserToken();
         List<OrderResponse> orderResponses = new ArrayList<>();
         orders.forEach(order -> {
             String orderId = order.getId();
-            BillingAddressResponse billingAddress = addressFeignClient.getBillingAddressById(order.getBillingAddressId());
-            ShippingAddressResponse shippingAddress = addressFeignClient.getShippingAddressById(order.getShippingAddressId());
-
+            BillingAddressResponse billingAddress = addressFeignClient.getBillingAddressById("Bearer " + loggedInUserToken, order.getBillingAddressId());
+            ShippingAddressResponse shippingAddress = addressFeignClient.getShippingAddressById("Bearer " + loggedInUserToken, order.getShippingAddressId());
             //Set card details
             CardResponse card = null;
             try {
-                PaymentMethodResponse paymentMethodResponse = paymentFeignClient.getPaymentMethodOfUserById(order.getPaymentMethodId());
+                PaymentMethodResponse paymentMethodResponse = paymentFeignClient.getPaymentMethodOfUserById("Bearer " + loggedInUserToken, order.getPaymentMethodId());
                 card = CardResponse.builder()
                         .last4Digits(paymentMethodResponse.getCardLast4Digits())
                         .cardBrand(paymentMethodResponse.getCardType())
@@ -133,7 +129,6 @@ public class OrderQueryService implements IOrderQueryService {
                 log.error("InvalidPaymentMethodException in OrderQueryService.getOrderOfUserById: Invalid payment method with Id {}, Exception: {}", order.getPaymentMethodId(), ex);
                 throw new InvalidPaymentMethodException("Invalid payment method with Id " + order.getPaymentMethodId());
             }
-
             List<OrderItemResponse> orderItemResponses = new ArrayList<>();
             order.getOrderItems().forEach(orderItem -> {
                 orderItemResponses.add(OrderItemResponse.builder()
@@ -142,10 +137,8 @@ public class OrderQueryService implements IOrderQueryService {
                         .quantity(orderItem.getQuantity())
                         .orderItemPrice(orderItem.getOrderItemPrice())
                         .orderExtendedPrice(orderItem.getOrderExtendedPrice())
-                        .order(orderItem.getOrder())
                         .build());
             });
-
             OrderResponse orderResponse = OrderResponse.builder()
                     .orderId(orderId)
                     .orderItems(orderItemResponses)
@@ -164,7 +157,6 @@ public class OrderQueryService implements IOrderQueryService {
                     .build();
             orderResponses.add(orderResponse);
         });
-
         return orderResponses;
     }
 

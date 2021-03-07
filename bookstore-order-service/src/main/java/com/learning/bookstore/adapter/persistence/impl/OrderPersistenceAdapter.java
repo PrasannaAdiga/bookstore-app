@@ -62,11 +62,7 @@ public class OrderPersistenceAdapter implements IOrderDataProvider {
 
     private OrderEntity buildOrderEntity(Order order) {
         List<OrderItemEntity> orderItemEntities = new ArrayList<>();
-        order.getOrderItems().forEach(orderItem -> {
-            orderItemEntities.add(buildOrderItemEntity(orderItem));
-        });
-        return OrderEntity.builder()
-                .orderItems(orderItemEntities)
+        OrderEntity orderEntity = OrderEntity.builder()
                 .totalOrderPrice(order.getTotalOrderPrice())
                 .billingAddressId(order.getBillingAddressId())
                 .deliveredDate(order.getDeliveredDate())
@@ -82,11 +78,17 @@ public class OrderPersistenceAdapter implements IOrderDataProvider {
                 .totalItemsPrice(order.getTotalItemsPrice())
                 .userMail(order.getUserEmail())
                 .build();
+        order.getOrderItems().forEach(orderItem -> {
+            orderItemEntities.add(buildOrderItemEntity(orderItem, orderEntity));
+        });
+        orderEntity.setOrderItems(orderItemEntities);
+        return orderEntity;
     }
 
-    private OrderItemEntity buildOrderItemEntity(OrderItem orderItem) {
+    private OrderItemEntity buildOrderItemEntity(OrderItem orderItem, OrderEntity orderEntity) {
         return  OrderItemEntity.builder()
                 .id(orderItem.getId())
+                .order(orderEntity)
                 .orderExtendedPrice(orderItem.getOrderExtendedPrice())
                 .orderItemPrice(orderItem.getOrderItemPrice())
                 .productId(orderItem.getProductId())
@@ -100,6 +102,8 @@ public class OrderPersistenceAdapter implements IOrderDataProvider {
             orderItems.add(buildOrderItem(orderItem));
         });
         return Order.builder()
+                .id(orderEntity.getId())
+                .creationDate(orderEntity.getCreationDate())
                 .orderItems(orderItems)
                 .totalOrderPrice(orderEntity.getTotalOrderPrice())
                 .billingAddressId(orderEntity.getBillingAddressId())

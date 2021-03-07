@@ -9,7 +9,6 @@ import lombok.Getter;
 @Builder
 public class OrderItemResponse {
     private String id;
-    private Order order;
     private String productId;
     private int quantity;
     private double orderItemPrice;

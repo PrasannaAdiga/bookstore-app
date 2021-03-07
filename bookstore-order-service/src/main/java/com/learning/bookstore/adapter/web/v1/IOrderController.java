@@ -52,7 +52,7 @@ public interface IOrderController {
             security = @SecurityRequirement(name = "bearerAuth"))
     ResponseEntity<List<OrderResponse>> getAllOrders();
 
-    @GetMapping("/{id")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('Buyer','Admin')")
     @Operation(summary = "Get order by Id", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderResponse.class))),

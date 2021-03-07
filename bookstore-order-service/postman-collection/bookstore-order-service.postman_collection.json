@@ -1,0 +1,162 @@
+{
+	"info": {
+		"_postman_id": "16558bc7-d9eb-4e99-a202-701a02016918",
+		"name": "bookstore-order-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create_order",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"billingAddressId\": \"92f5b7f7-dc43-40a2-88c9-c6df3a475bf0\",\n    \"shippingAddressId\": \"37168d88-ded9-4f27-8457-9a9f1c1b7f92\",\n    \"paymentMethodId\": \"pm_1ISGQLDGcSFaTwuTiglRRl2L\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:53308/v1/orders/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53308",
+					"path": [
+						"v1",
+						"orders",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "preview_order",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"billingAddressId\": \"92f5b7f7-dc43-40a2-88c9-c6df3a475bf0\",\n    \"shippingAddressId\": \"37168d88-ded9-4f27-8457-9a9f1c1b7f92\",\n    \"paymentMethodId\": \"pm_1ISGQLDGcSFaTwuTiglRRl2L\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:53308/v1/orders/preview",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53308",
+					"path": [
+						"v1",
+						"orders",
+						"preview"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_order_of_system",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:53308/v1/orders/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53308",
+					"path": [
+						"v1",
+						"orders",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_order_by_id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:53308/v1/orders/a0849a85-f336-4531-adc4-a6e9d02facd9",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53308",
+					"path": [
+						"v1",
+						"orders",
+						"a0849a85-f336-4531-adc4-a6e9d02facd9"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_order_of_logged_in_user",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:53308/v1/orders/my-orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "53308",
+					"path": [
+						"v1",
+						"orders",
+						"my-orders"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

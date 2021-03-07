@@ -1,10 +1,7 @@
 package com.learning.bookstore.adapter.persistence.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
 
@@ -17,6 +14,7 @@ import javax.validation.constraints.Positive;
 @Table(name = "Order_Item")
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItemEntity extends Auditor<String> {
@@ -26,7 +24,7 @@ public class OrderItemEntity extends Auditor<String> {
     @Column(updatable = false, nullable = false)
     private String id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private OrderEntity order;
