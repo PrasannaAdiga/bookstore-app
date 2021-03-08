@@ -31,7 +31,6 @@ public class OrderEntity extends Auditor<String> {
     private String userMail;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    //@NotEmpty(message = "Order items should not be empty")
     private List<OrderItemEntity> orderItems;
 
     @Column(name = "total_item_price", nullable = false)
