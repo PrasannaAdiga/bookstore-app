@@ -283,7 +283,7 @@ By Using Keycloak
  
 ---
 
-#Spring Boot
+# Spring Boot
 To create stand-alone, production-grade Spring based Java Micro Service Applications
  
  - Each spring boot micro service applications are registered/connected to below spring cloud related servers:
@@ -628,15 +628,15 @@ To convert DTO to Entities and vice versa
          
 ---
  
-#Docker
+# Docker
 
 ---
 
-#Kubernetes
+# Kubernetes
 
 ---
  
-#Testing
+# Testing
 By using JUnit
  - Add the dependency 'spring-boot-starter-test'
  - Add a new folder 'resources' in the path 'src/test' and create a new file 'bootstrap.yml' under that
