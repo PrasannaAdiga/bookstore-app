@@ -13,7 +13,7 @@
 # Spring Cloud
 Provides the tools to quickly build some common patterns in distributed systems 
 
-##1. Configuration management
+## Configuration management
 By using Spring Cloud Config Server and Config Client
 
 Register Config Server with Consul
@@ -58,7 +58,7 @@ Register Config Server with Consul
        max-interval: 5000
  ```
 
-##2. Service Discovery 
+## Service Discovery 
 By Using Consul
 
 #### Consul Server
@@ -116,7 +116,7 @@ By using Spring Cloud Consul
  ```
 - Run multiple instances of each microservice by passing environment variable '-Dspring.profiles.active' as either zone1 or zone2. This will register each microservice in their respective zones by adding the corresponding tags as zone1 or zone2 in Consul.
 
-##3. API Gateway 
+## API Gateway 
 By using Spring Cloud Gateway
 
 Register API Gateway server with Consul
@@ -152,7 +152,7 @@ Register API Gateway server with Consul
  - Now we can be sure that each incoming request to gateway server started in zone1 would be forwarded to only those microservices which are also having the tag of 'zone1'. And the same for Zone2.
  - To access gateway server running on port 8080(zone1)/9080(zone2): http://localhost:<port>/<service-name-defined-in-gateway-server>/<service-path>
   
-##4. Inter Service Communication 
+## Inter Service Communication 
 Along with Client Side Load Balancer, Circuit Breaker and Retry
 
 By Using Spring Cloud OpenFeign with Spring Cloud LoadBalancer(as a Load Balancer) and spring-cloud-starter-circuitbreaker-resilience4j(as a Circuit Breaker)  
