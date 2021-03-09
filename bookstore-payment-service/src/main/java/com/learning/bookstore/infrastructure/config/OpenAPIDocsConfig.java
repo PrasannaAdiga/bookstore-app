@@ -23,10 +23,10 @@ public class OpenAPIDocsConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         List servers = new ArrayList<Server>();
-        servers.add(new Server().url("http://localhost:6001").description("Development server"));
+        servers.add(new Server().url("http://localhost:8080/bookstore-payment-service").description("Development server"));
 
         return new OpenAPI().components(new Components()).info(new Info()
-                .description("<p>Provides list of REST APIs for Product Service</p>")
-                .title("API documentation for Product Service").version("1.0.0")).servers(servers);
+                .description("<p>Provides list of REST APIs for Payment Service</p>")
+                .title("API documentation for Payment Service").version("1.0.0")).servers(servers);
     }
 }

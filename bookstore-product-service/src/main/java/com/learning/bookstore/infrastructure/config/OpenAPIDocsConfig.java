@@ -23,7 +23,7 @@ public class OpenAPIDocsConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         List servers = new ArrayList<Server>();
-        servers.add(new Server().url("http://localhost:6001").description("Development server"));
+        servers.add(new Server().url("http://localhost:8080/bookstore-product-service").description("Development server"));
 
         return new OpenAPI().components(new Components()).info(new Info()
                 .description("<p>Provides list of REST APIs for Product Service</p>")

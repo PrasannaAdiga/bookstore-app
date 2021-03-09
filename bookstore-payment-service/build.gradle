@@ -2,6 +2,9 @@ plugins {
 	id 'org.springframework.boot' version '2.3.9.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	//For creating json format of open api REST API document
+	id "com.github.johnrengelman.processes" version "0.5.0"
+	id "org.springdoc.openapi-gradle-plugin" version "1.3.1"
 }
 
 group = 'com.bookstore.learning'
@@ -20,6 +23,24 @@ repositories {
 
 ext {
 	set('springCloudVersion', "Hoxton.SR10")
+}
+
+//To add build related information in to actuator 'info' endpoint
+springBoot {
+	buildInfo()
+}
+
+//To generate html5 version of javadoc
+javadoc {
+	options.addBooleanOption('html5', true)
+}
+
+//To generate downloadable json format of swagger document
+openApi {
+	apiDocsUrl.set("http://localhost:8080/bookstore-payment-service/v3/api-docs")
+	outputDir.set(file("$buildDir/docs"))
+	outputFileName.set("bookstore-payment-service.json")
+	waitTimeInSeconds.set(10)
 }
 
 dependencies {

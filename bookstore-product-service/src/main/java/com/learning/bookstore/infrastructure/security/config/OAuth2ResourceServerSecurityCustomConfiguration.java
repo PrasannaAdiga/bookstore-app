@@ -37,6 +37,7 @@ public class OAuth2ResourceServerSecurityCustomConfiguration extends WebSecurity
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .cors().and()
                 .httpBasic().disable()
                 .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
