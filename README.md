@@ -298,7 +298,7 @@ By Using Spring Cloud OpenFeign with Spring Cloud LoadBalancer(as a Load Balance
 ---
 
 # Oauth2 and OpenID Connect 
-By Using Keycloak
+By Using Keycloak - As a OAuth2 Authorization Server
 
  - Keycloak is an OAuth2 Authorization Server which will implement both OAuth2 and OpenId Connect protocols to provide access and id tokens for OAuth2 Client applications. 
  - These tokens will contains user identity and access/role related information
@@ -372,7 +372,12 @@ To write application logs into a file
   - By default, set the log level as 'error' for the ROOT log
   - Also set the log level as info for application's root package, if there are not so many info logs exists in code
   - Note that, by default if we activate the endpoint 'logger' of spring boot actuator, then the actuator provides a REST endpoint through which we can chang the log level of any package or plugin without restarting the server. We can make this just by executing the API with required data.
-  - Enhance the logging with MDC (Mapped Diagnostic Context): 
+  - Enhance the logging with MDC (Mapped Diagnostic Context)
+  - To set different log levels for each package use below configurations. This can also configure in 'logback-spring.xml' file
+  ```
+  logging.level.org.springframework.web: DEBUG
+  logging.level.org.hibernate: ERROR
+  ```
   
 ### Validation and Exception Handling
   - Use validator annotations like @NotEmpty, @NotNull, @NotBlank, @Size, @Min, @Max, @Positive etc in the domain/entity classes along with proper exception message details for the user to read
@@ -422,8 +427,8 @@ For managing history information for entities
           }
       }
     ```
- - Use the spring provided interceptor HandlerInterceptor to get the complete access over any request before it reaches a controller, or after controller return a response and before it render view, or after the view rendered completely. We can usually set start time in the preHandle method and check for the end time in afterCompletion method to find total time taken for an REST API to execute.Also, we can set unique traceId for each request in the prehandle method and later in the afterCompletion method we can remove these traceId
- - Interceptor to work, it must registered in InterceptorRegistry. For this spring provides a configurer class WebMvcConfigurer, addInterceptor method where new interceptors can be registered in the order.
+ - Use the spring provided interceptor HandlerInterceptor to get the complete access over any request before it reaches a controller, or after controller return a response and before it render view, or after the view rendered completely. We can usually set start time in the preHandle method and check for the end time in afterCompletion method to find total time taken for an REST API to execute.Also, we can set unique traceId for each request in the preHandle method and later in the afterCompletion method we can remove these traceId
+ - Interceptor to work, it must registered in InterceptorRegistry. For this spring provides a Configurer class WebMvcConfigurer, addInterceptor method where new interceptors can be registered in the order.
  - Each Interceptor can also configure to get activated only for specific set of URL's
  - ClientHttpRequestInterceptor to work, it must be set as interceptor to RestTemplate by using restTemplate.setInterceptor method
  - OncePerRequestFilter to work, it must be set as filter to FilterRegistrationBean by using its setFilter method
@@ -439,8 +444,68 @@ To provide authentication, authorization
  - APIs which are restricted to access, needs a valid username and password to access. 
  - Once Authentication is successful, we can restrict accessing each APIs only through a valid Role. This process is called authorization.
  - We can configure authorization either in the configuration class or at each class/method level through @PreAuthorize or other annotations provide by spring security. To use these annotations we need to set '@EnableGlobalMethodSecurity(prePostEnabled = true)' in the configuration file.
- - Also, we can write custom exception handler logic for Unauthorized and Access Denied exceptions
+ - Also, we can write custom exception handler logic for Unauthorized and Access Denied exceptions, where we can return a meaningful message to user. The following code can be used for the same in configure() method:
+ ```
+ http
+ .exceptionHandling()
+ .accessDeniedHandler(restAccessDeniedErrorHandler)
+ .authenticationEntryPoint(restUnAuthorizedErrorHandler);
+
+ public class RestUnAuthorizedErrorHandler extends BasicAuthenticationEntryPoint { ... }
+
+ public class RestAccessDeniedErrorHandler implements AccessDeniedHandler {
+ ```
  - Authenticated user details can be fetched in controller by passing another argument Authentication or Principal in a method, which is provided by spring security
+ 
+### Spring Data JPA
+To implement JPA based repositories
+
+ - Create new JPA entities with required annotations, validations and mappings
+ - Create new classes which implements JpaRepository and provides custom query methods with @Query annotation and placeholder in the queries like 'id = ?1' 
+ - Add @Transactional annotation
+
+### OAuth2 Resource Server
+Spring boot application as a OAuth2 resource server, which provides the protected resource to user only upon receiving a valid token, which user can obtain from OAuth2 Authorization Server
+
+ - To convert spring boot application into an OAuth2 Resource server add the dependency 'spring-boot-starter-oauth2-resource-server'. This by default includes Spring Security and JWT support as well.
+ - Add the below configurations in configure method of WebSecurityConfigurerAdapter. This will automatically expect a user token from a client, sends those token to OAuth2 Authorization server, receives JWT token from Authorization server in return, extract user roles from those JWT token and converts them to list of Spring Security Granted Authorities and set those authorities in SecurityContextHolder so that these roles can be accessed from any part of the application for that logged in user.
+ ```
+ http
+    .oauth2ResourceServer(oauth2ResourceServer ->
+        oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+    )
+
+ private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
+     JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+     jwtConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRealmRoleConverter());
+     return jwtConverter;
+ }
+
+ @Bean
+ JwtDecoder jwtDecoder() {
+     return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
+ }
+
+ public class KeycloakRealmRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
+     @Override
+     public Collection<GrantedAuthority> convert(Jwt jwt) {
+         final Map<String, Object> realmAccess = (Map<String, Object>) jwt.getClaims().get("realm_access");
+         return ((List<String>)realmAccess.get("roles")).stream()
+                 .map(roleName -> "ROLE_" + roleName)
+                 .map(SimpleGrantedAuthority::new)
+                 .collect(Collectors.toList());
+     }
+ }
+ ```
+ - Then, we can inject this token into any of the method through '@AuthenticationPrincipal JWt jwt' as a parameter and extract any of the details from access token like below:
+ ```
+ To get user mail:
+    jwt.getClaimAsString("email") (or)
+    ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getClaimAsString("email");
+ To get user access token 
+    jwt.getTokenValue(); (or)
+    ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue;
+ ```
  
 ### Spring Docs OpenAPI
 To automate the generation of API documentation
@@ -585,7 +650,7 @@ By using Prometheus and Grafana
 ### Spring developer tools
 To help local development
   - Lombok
-  - spring boot devtools - an automatic restart of server on code changes
+  - spring boot DevTools - an automatic restart of server on code changes, live reload of resource changes in the browser. By default, auto restart support does not work in IntelliJ. Follow the steps mentioned in here to configure it in IntelliJ: https://medium.com/@bhanuchaddha/spring-boot-devtools-on-intellij-c0ab3f9afa63
   - spring boot configuration processor - helps developers in providing available configuration options in yml/properties files
     
 ### Cross Cutting Concerns

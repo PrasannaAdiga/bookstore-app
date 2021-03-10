@@ -3,6 +3,7 @@ package com.learning.bookstore.adapter.web.exception.handler;
 import com.learning.bookstore.adapter.web.exception.response.RestApiResponseErrorMessage;
 import com.learning.bookstore.application.exception.ResourceFoundException;
 import com.learning.bookstore.application.exception.ResourceNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,9 +15,11 @@ import java.nio.file.NoSuchFileException;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
+@Slf4j
 public class CustomAPIExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<RestApiResponseErrorMessage> handleConstraintViolationException(final Exception exception, final HttpServletRequest request) {
+        log.error("Exception handler for ConstraintViolationException: " + exception.getMessage());
         RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
@@ -28,6 +31,7 @@ public class CustomAPIExceptionHandler {
 
     @ExceptionHandler(ResourceFoundException.class)
     public ResponseEntity<RestApiResponseErrorMessage> handleResourceFoundException(final Exception exception, final HttpServletRequest request) {
+        log.error("Exception handler for ResourceFoundException: " + exception.getMessage());
         RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
                 .status(HttpStatus.FOUND.value())
                 .error("Resource already exists!")
@@ -39,6 +43,7 @@ public class CustomAPIExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<RestApiResponseErrorMessage> handleResourceNotFoundException(final Exception exception, final HttpServletRequest request) {
+        log.error("Exception handler for ResourceNotFoundException: " + exception.getMessage());
         RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
                 .error("Resource not found!")
@@ -50,6 +55,7 @@ public class CustomAPIExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<RestApiResponseErrorMessage> handleIllegalArgumentException(final Exception exception, final HttpServletRequest request) {
+        log.error("Exception handler for IllegalArgumentException: " + exception.getMessage());
         RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Illegal Argument Exception!")
@@ -61,6 +67,7 @@ public class CustomAPIExceptionHandler {
 
     @ExceptionHandler(NoSuchFileException.class)
     public ResponseEntity<RestApiResponseErrorMessage> handleNoSuchFileException(final Exception exception, final HttpServletRequest request) {
+        log.error("Exception handler for NoSuchFileException: " + exception.getMessage());
         RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error("No such image file found!")
