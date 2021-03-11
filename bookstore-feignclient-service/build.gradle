@@ -21,11 +21,10 @@ dependencies {
 	implementation 'javax.servlet:javax.servlet-api'
 
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'io.github.resilience4j:resilience4j-micrometer'
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
-	//Not adding below circuit breaker pattern, as we are using open feign error decoder
+	//Not adding below circuit breaker pattern, as we are using open feign error decoder and retry functionalities which will not work else
 	//implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 
 	compileOnly 'org.projectlombok:lombok'

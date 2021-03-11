@@ -119,9 +119,10 @@ By using Spring Cloud Consul
 ## API Gateway 
 By using Spring Cloud Gateway
 
-Register API Gateway server with Consul
+ - Spring cloud Gateway provides various functionalities like, SpringDoc OpenAPI support, Timeouts and Retries, Rate Limiting with Redis, Circuit Breaker with Resilience4j. 
  - Use API Gateway server to expose each microservice on a static port to an external client applications, as microservices will be running on random ports
  - We don’t need to register gateway in Consul discovery, because it is not accessed internally. But, we integrate Gateway server to Consul discovery as Gateway server needs to get details of running microservice instances
+ - The API gateway, which is built on top of Spring Cloud Gateway uses Netty as an embedded server and is based on reactive Spring WebFlux. Also, Springdoc OpenAPI is compatible with OpenAPI 3, and supports Spring WebFlux, while SpringFox is not.
  - If the Zone Affinity Mechanism in Consul is enabled, then we can run multiple instances of API Gateway in each zones
  - Add the dependencies 'spring-cloud-starter-gateway', 'spring-cloud-starter-consul-all' and 'spring-boot-starter-actuator'. If we add spring-boot-actuator, there will be new endpoint '/actuator/gateway' added by spring-cloud-gateway.
  - We can define multiple spring profiles corresponding to each zone in API Gateway
@@ -177,14 +178,105 @@ Register API Gateway server with Consul
                - PATCH
              maxAge: 7200
  ```
+
+#### Gateway Actuator Endpoint
+ - If we add the dependency 'spring-boot-starter-actuator', cloud gateway will provide additional endpoint '/gateway/routes'
+ - To enable this, add the below property in application yml file along with other endpoint names:
+ ```
+ management:
+   endpoints:
+     web:
+       exposure:
+         include: gateway
+ ```
+ - This endpoint provides information on the configured route, uri, predicate, filter definitions
+ 
+#### SpringDoc OpenAPI
+ - It is possible to group all available micro services OpenAPI documentations in Spring Cloud Gateway and show all of them under a single service endpoint.
+ - For that, add the dependencies 'springdoc-openapi-webflux-ui' in cloud gateway project
+ - Add a new Route definition for the path '/v3/api-docs/**' in application yml file
+ ```
+ - id: openapi
+   uri: http://localhost:${server.port}
+   predicates:
+     - Path=/v3/api-docs/**
+   filters:
+     - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+ ```
+ - Finally, create a new Bean, which will provide the list of GroupedOpenApi. In this Bean configuration, we loop through Route definition of each micro service and add their corresponding spring doc open api rest endpoints into a list of GroupedOpenApi. Add this list into Swagger UI as a Group which will display a dropdown from where we can select any one of the microservice name and see their corresponding api docs.
+ ```
+ @Configuration
+ public class OpenAPIResourceConfig {
+     @Autowired
+     RouteDefinitionLocator locator;
+     @Bean
+     public List<GroupedOpenApi> apis(SwaggerUiConfigParameters swaggerUiConfigParameters, RouteDefinitionLocator locator) {
+         List<GroupedOpenApi> groups = new ArrayList<>();
+         List<RouteDefinition> definitions = locator.getRouteDefinitions().collectList().block();
+         definitions.stream().filter(routeDefinition -> routeDefinition.getId().matches(".*-service") &&
+                 !routeDefinition.getId().contains("DiscoveryClient")).forEach(routeDefinition -> {
+             String name = routeDefinition.getId().replaceAll("-service", "");
+             swaggerUiConfigParameters.addGroup(name);
+             groups.add(GroupedOpenApi.builder().pathsToMatch("/" + name + "/**").group(name).build());
+         });
+         return groups;
+     }
+ }
+ ```
+
+#### Timeouts and Retries in Gateway
+##### Retry
+ - By default, spring cloud gateway provides Retry filter. To activate this filter, provide either default or custom filter for each microservice in the route config definition
+ ```
+ filters:
+   - RewritePath=/bookstore-address/(?<path>.*), /$\{path}
+   - name: Retry (name of the filer)
+     args:
+       retries: 3 (number of retries)
+       series: SERVER_ERROR (For 3XX, 4XX or 5XX series of error)
+       statuses: SERVICE_UNAVAILABLE,GATEWAY_TIMEOUT,BAD_GATEWAY (For specific error status)
+       exceptions: (For specific exception classes)
+         - org.springframework.cloud.gateway.support.NotFoundException
+         - org.springframework.cloud.gateway.support.TimeoutException
+         - IOException
+       methods: GET,POST,PUT,DELETE,PATCH (For specific method)
+       backoff: (Delay while calling the api for each retry)
+         firstBackoff: 10ms
+         maxBackoff: 50ms
+         factor: 2
+         basedOnPreviousValue: false
+ ```
+ - If we mention '-name: Retry', then default Mechanism will be applied
+##### Timeout
+ - To set the global http call timeouts, use the below configurations in the application yml file
+ ```
+ spring:
+   cloud:
+     gateway:
+       httpclient:
+         connect-timeout: 1000
+         response-timeout: 5s 
+ ```   
+ - To configure, per each route definition use the below setting
+ ```
+ - id: per_route_timeouts
+   metadata:
+     response-timeout: 200
+     connect-timeout: 200
+ ```
+
+#### Circuit Breaker in Gateway
+
+#### Rate Limiting in Gateway with Redis
+
   
 ## Inter Service Communication 
 Along with Client Side Load Balancer, Circuit Breaker and Retry
 
 By Using Spring Cloud OpenFeign with Spring Cloud LoadBalancer(as a Load Balancer) and spring-cloud-starter-circuitbreaker-resilience4j(as a Circuit Breaker)  
 
- - Add the dependency 'spring-cloud-starter-openfeign', 'spring-cloud-loadbalancer and 'spring-cloud-starter-circuitbreaker-resilience4j'
- - Add the dependency 'resilience4j-micrometer' along with 'spring-boot-actuator', which will provide additional metrics related to resilience4j.
+ - Add the dependency 'spring-cloud-starter-openfeign', 'spring-cloud-loadbalancer'
+ - If Circuit Breaker functionality is needed add the dependency 'spring-cloud-starter-circuitbreaker-resilience4j'. Also, aadd the dependency 'resilience4j-micrometer' along with 'spring-boot-actuator', which will provide additional metrics related to resilience4j.
  - The OpenFeign will auto-integrate with service discovery like Consul, if 'spring-cloud-starter-consul-all' is in the classpath to get the details of running micro service instances
  - To use it we need to declare an interface with required methods for communication. Method signature must be similar to the one which is defined in the actual microservice.
  - The interface has to be annotated with @FeignClient that points to the service using its discovery name as registered in Consul.
@@ -199,8 +291,9 @@ By Using Spring Cloud OpenFeign with Spring Cloud LoadBalancer(as a Load Balance
  ```
  ProductResponse getProductById(@RequestHeader(value = "Authorization", required = true) String accessToken, @PathVariable("id") String id);
  ```
-- Also, we can write custom exception for Feign Exception and global handler for the same.
-- We can keep all the properties of this library in Config Server
+ - Also, we can write custom exception for Feign Exception and global handler for the same.
+ - We can keep all the properties of this library in Config Server
+ - Note that, if we add Circuit Breaker support, then Retry and ErrorDecoder functionality of Open Feign will not work with the current Open Feign version since, Circuit Breaker will break the call without retrying the call and respond with dummy data which is implemented in the Fallback Handler methods. So, do not use Circuit Breaker if we need to have Open Feign Retry and Error Handler mechanism.
 
 ### Load Balancer
  - Spring Cloud OpenFeign can use Spring Cloud LoadBalance as a client side load balancer, if it exists in the classpath, and the ribbon load balancer disabled.

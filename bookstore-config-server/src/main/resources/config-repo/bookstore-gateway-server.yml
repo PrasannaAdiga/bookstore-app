@@ -28,33 +28,48 @@ spring:
         - id: bookstore-product-service
           uri: lb://bookstore-product-service
           predicates:
-            - Path=/product-service/**
+            - Path=/bookstore-product/**
           filters:
-            - RewritePath=/product-service/(?<path>.*), /$\{path}
+            - RewritePath=/bookstore-product/(?<path>.*), /$\{path}
+            - name: Retry
         - id: bookstore-cart-service
           uri: lb://bookstore-cart-service
           predicates:
-            - Path=/cart-service/**
+            - Path=/bookstore-cart/**
           filters:
-            - RewritePath=/cart-service/(?<path>.*), /$\{path}
+            - RewritePath=/bookstore-cart/(?<path>.*), /$\{path}
+            - name: Retry
         - id: bookstore-address-service
           uri: lb://bookstore-address-service
           predicates:
-            - Path=/address-service/**
+            - Path=/bookstore-address/**
           filters:
-            - RewritePath=/address-service/(?<path>.*), /$\{path}
+            - RewritePath=/bookstore-address/(?<path>.*), /$\{path}
+            - name: Retry
         - id: bookstore-payment-service
           uri: lb://bookstore-payment-service
           predicates:
-            - Path=/payment-service/**
+            - Path=/bookstore-payment/**
           filters:
-            - RewritePath=/payment-service/(?<path>.*), /$\{path}
+            - RewritePath=/bookstore-payment/(?<path>.*), /$\{path}
+            - name: Retry
         - id: bookstore-order-service
           uri: lb://bookstore-order-service
           predicates:
-            - Path=/order-service/**
+            - Path=/bookstore-order/**
           filters:
-            - RewritePath=/order-service/(?<path>.*), /$\{path}
+            - RewritePath=/bookstore-order/(?<path>.*), /$\{path}
+            - name: Retry
+        - id: openapi
+          uri: http://localhost:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+            - name: Retry
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 5s
 
 logging:
   level:
@@ -64,7 +79,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics
+        include: health, info, metrics, gateway
   endpoint:
     health:
       show-details: always
