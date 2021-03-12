@@ -68,7 +68,7 @@ spring:
             - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
             - name: Retry
       httpclient:
-        connect-timeout: 1000
+        connect-timeout: 50000
         response-timeout: 5s
 
 logging:

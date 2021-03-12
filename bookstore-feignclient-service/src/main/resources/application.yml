@@ -4,3 +4,7 @@ feign:
       default:
         errorDecoder: com.learning.bookstore.decoder.FeignClientErrorDecoder
         retryer: com.learning.bookstore.retry.FeignClientRetry
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
