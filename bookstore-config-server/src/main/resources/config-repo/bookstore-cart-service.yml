@@ -1,25 +1,6 @@
 server:
   port: ${SERVER_PORT:0}
 
-spring:
-  cloud:
-    consul:
-      discovery:
-        instance-id: ${spring.application.name}:${random.int[1,999999]}
-
-logging:
-  level:
-    com.learning.bookstore.*: DEBUG
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info, metrics
-  endpoint:
-    health:
-      show-details: always
-
 ---
 
 spring:

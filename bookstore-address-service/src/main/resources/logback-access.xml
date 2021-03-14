@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOGS" value="/Users/prasannaadiga/Learning/Project/spring-cloud/bookstore-app/bookstore-address-service/logs" />
+    <springProperty scope="context" name="applicationName" source="spring.application.name"/>
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>combined</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="LogStash" class="ch.qos.logback.core.FileAppender">
+        <file>${LOGS}/${applicationName}.log</file>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator class="ch.qos.logback.access.net.URLEvaluator">
+                <URL>/health</URL>
+            </evaluator>
+            <OnMismatch>NEUTRAL</OnMismatch>
+            <OnMatch>DENY</OnMatch>
+        </filter>
+        <encoder class="net.logstash.logback.encoder.LogstashAccessEncoder">
+            <fieldNames>
+                <requestHeaders>request_headers</requestHeaders>
+                <responseHeaders>response_headers</responseHeaders>
+            </fieldNames>
+            <lowerCaseHeaderNames>true</lowerCaseHeaderNames>
+        </encoder>
+    </appender>
+
+    <appender-ref ref="Console" />
+    <appender-ref ref="LogStash" />
+</configuration>

@@ -37,6 +37,7 @@ dependencies {
 	implementation 'org.springframework.retry:spring-retry'
 
 	implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
+	implementation 'net.rakugakibox.spring.boot:logback-access-spring-boot-starter:2.7.1'
 
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'

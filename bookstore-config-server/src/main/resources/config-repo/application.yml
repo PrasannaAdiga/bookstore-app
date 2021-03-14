@@ -1,24 +1,51 @@
+#Common actuator endpoint related configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
+
+#Common Spring Boot related configuration
+spring:
+  main:
+    banner-mode: OFF
+
+#Common Spring Cloud related configuration
+  cloud:
+    consul:
+      discovery:
+        #To generate unique instance id for each service in Consul
+        instance-id: ${spring.application.name}:${random.int[1,999999]}
+    loadbalancer:
+      ribbon:
+        #To use Spring Cloud Load Balancer instead of Ribbon, which should be required in the classpath
+        enabled: false
+  #Spring cloud Sleuth related configuration
+  sleuth:
+    sampler:
+      probability: 1
+  #Spring cloud Zipkin related configuration
+  zipkin:
+    base-url: http://localhost:9411
+    sender:
+      type: web
+
+#Spring Cloud Open Feign related configuration
 feign:
-#  circuitbreaker:
-#    enabled: true #To use Spring Cloud Circuit Breaker which should be added in the classpath instead of Hystrix
+# circuitbreaker:
+    #To use Spring Cloud Circuit Breaker instead of Hystrix, which should be required in the classpath
+#   enabled: true
   hystrix:
     enabled: false
   client:
     config:
       default:
+        #Spring cloud open feign connect and read timeout details along with log level
         connectTimeout: 12000
         readTimeout: 12000
         loggerLevel: basic
 
-spring:
-  cloud:
-    loadbalancer:
-      ribbon:
-        enabled: false #To use Spring Cloud Load Balancer which should be added in the classpath instead of Ribbon
-  sleuth:
-    sampler:
-      probability: 1
-  zipkin:
-    base-url: http://localhost:9411
-    sender:
-      type: web
+

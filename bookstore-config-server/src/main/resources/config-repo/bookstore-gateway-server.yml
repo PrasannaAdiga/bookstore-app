@@ -71,10 +71,6 @@ spring:
         connect-timeout: 50000
         response-timeout: 5s
 
-logging:
-  level:
-    com.learning.bookstore.*: DEBUG
-
 management:
   endpoints:
     web:

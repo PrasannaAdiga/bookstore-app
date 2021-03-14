@@ -42,6 +42,7 @@ Register Config Server with Consul
            instance-id: ${spring.application.name}:${random.int[1,999999]}
  ```
  - Create a new folder 'config-repo' under the path 'src/main/resources' and create different yml files for each of the microservice with corresponding microservice's application name as file name. Keep all configurations related to different profile here.
+ - Also, create a common 'application.yml' file and add all the configuration details which are unique for all microservices
   
 #### Config Client
  - Add the dependency 'spring-cloud-starter-config' and 'spring-retry' in each of the microservices which needs to connect to Config Server
@@ -56,6 +57,14 @@ Register Config Server with Consul
        multiplier: 1.5
        max-attempts: 1000
        max-interval: 5000
+ ```
+ - Also, add below details in 'bootstrap.yml'. These configuration details will fetch all the available properties for the mentioned application name and profile name.
+ ```
+ spring:
+   application:
+     name: bookstore-product-service
+   profiles:
+     active: ${SPRING_PROFILES_ACTIVE:local_zone1}
  ```
 
 ## Service Discovery 
@@ -419,7 +428,101 @@ By using Spring Cloud Sleuth and Zipkin
  docker run -d -p 9411:9411 openzipkin/zipkin
  ```
  - Access the zipkin server at the url: http://localhost:9411 
+
+##Distributed Log Aggregator
+To aggregate the logger data from different micro services into one place for analyzing purpose
+
+ - Use the tools like Logstash-logback-encoder, logback-access-spring-boot-starter, Logstash, Elastic Search and Kibana
  
+#### Logstash-logback-encoder 
+To store the logback log information which are defined in the application logic, into a physical log file, in a structured format lke JSON or to append the log data into Console in a specific pattern
+ - If 'logstash-logback-encoder' plugin is in the classpath, it will read the appender details to Logstash which are defined in the 'logback-spring.xml' file and generates a local physical file which contains all the logs data of the application, in a specific format which is required by Logstash
+ - Further, details of the 'logback-spring.xml' file provided in the below logback section
+
+#### logback-access-spring-boot-starter
+To store the logback application access information into a physical log file, in a structured format lke JSON or to append the log data into Console in a specific pattern
+ - This plugin provides HTTP logging capability through logback-access module.
+ - logback-access integrates to the servlet container of an application (Tomcat or Jetty), catches the HTTP calls and turns them into log items
+ - Add the dependency 'logback-access-spring-boot-starter'
+ - Create a new XML configuration file 'logback-access.xml' under the path src/resources which will be read automatically by this plugin
+ - By reading this config file, 'logback-access-spring-boot-starter' plugin will add details on request data, response data, request url, response status, request and response status etc into the console or the physical file which later can be sent to Logstash 
+ - Also, in this configuration file we can define some filter, which can skip adding access information of the mentioned URLs like /health API which will be called by Consul automatically for every one minute
+ - Such a sample 'logback-access.xml' file can be configured as below:
+ ```
+ <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+     <encoder>
+         <pattern>combined</pattern>
+     </encoder>
+ </appender>
+ <appender name="LogStash" class="ch.qos.logback.core.FileAppender">
+     <file>${LOGS}/${applicationName}.log</file>
+     <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+         <evaluator class="ch.qos.logback.access.net.URLEvaluator">
+             <URL>/health</URL>
+         </evaluator>
+         <OnMismatch>NEUTRAL</OnMismatch>
+         <OnMatch>DENY</OnMatch>
+     </filter>
+     <encoder class="net.logstash.logback.encoder.LogstashAccessEncoder">
+         <fieldNames>
+             <requestHeaders>request_headers</requestHeaders>
+             <responseHeaders>response_headers</responseHeaders>
+         </fieldNames>
+         <lowerCaseHeaderNames>true</lowerCaseHeaderNames>
+     </encoder>
+ </appender>
+ <appender-ref ref="Console" />
+ <appender-ref ref="LogStash" />
+ ```
+
+#### Logstash
+To Collect, Filter and Transform the log data
+
+ - We can define the configuration in the logstash.conf file of Logstash
+ - This file basically has three sections input, filter and output
+ - Input: here we can define the path of the physical log file which is created for a microservice
+ ```
+ input {
+   file {
+     type => "bookstore-address-service-log"
+     path => "/Users/prasannaadiga/Learning/Project/spring-cloud/bookstore-app/bookstore-address-service/logs/bookstore-address-service.log"
+   }
+ }
+ ```
+ - Filter: If we use logstash-logback-encoder plugin we automatically send JSOn format of log details to logsatsh. so no need to define any formatting logic in filter section. else, we can use Grok filter to split, agrreagate and transform unstructured log data to structured JSON format. 
+ - And, inorder to split each key value of a JSON object into a separate data, so that later in Kibana we can see each of these data separately instead of whole json as single field and can apply better filter use the below JSON filter in filter section:
+ ```
+ filter {
+   json {
+     source => "message"
+   }
+ }
+ ```
+ - Output: This section defines host address of elastic search, and the new index details specific for this microservice logs, so that all the filtered logs can be send to Elastic seach and stored in the specific index as mentioned
+ ```
+ output {
+   if [type] == "bookstore-address-service-log" {
+     elasticsearch {
+       hosts => ["https://bc4315f93c074ac995953bb0696639a9.eastus2.azure.elastic-cloud.com:9243"]
+       index => "bookstore-address-service-%{+YYYY.MM.dd}"
+       user => "<user name of elastic cloud of we use>"
+       password => "<password of elastic cloud if we use>"
+     }
+   }
+   stdout { codec => rubydebug }
+ }
+ ```
+ - Logstash can be started in docker or local executable. To run in local, go to bin directory and use the command './logstash -f <full path for logstash.conf>'
+
+#### Elastic Search
+Search Engine to store and search all the log file records for analysis purpose
+
+#### Kibana
+A visual interface to search and visualize log file records, which are read from Elastic Search
+
+## Distributed Alert and Monitoring system
+
+
 ---
 
 # Oauth2 and OpenID Connect 
@@ -483,10 +586,57 @@ To create stand-alone, production-grade Spring based Java Micro Service Applicat
  - html format of the documentation will be available under the path build -> docs -> javadoc in the root directory of the project
  
 ### Logback
-To write application logs into a file
-  - Add the dependency 'logstash-logback-encoder', which converts the text format application logs to json format which is required for the Logstash
-  - Add the logback configuration file 'logback-spring.xml' in the application resource path to store the application logs into either file/console/send it directly to Logstash
+To customize and send application logs in to a console or file
+  - By default, spring boot support logback for logs and provides the logback XML configuration file 'logback-spring.xml' which can be placed in the application resource path to store the application logs into a local physical file or can be sent to console or to Logstash after converting into a Structured format like JSON
+  - Add the dependency 'logstash-logback-encoder', which will read the configuration defined in 'logback-spring.xml' file and converts the text format application logs to json format which is required for the Logstash
   Note: Use the absolute path for the file location instead of relative path
+  - Sample such logback-spring.xml
+  ```
+  <property name="LOGS" value="/Users/prasannaadiga/Learning/Project/spring-cloud/bookstore-app/bookstore-payment-service/logs" />
+      <springProperty scope="context" name="applicationName" source="spring.application.name"/>
+      <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+          <layout class="ch.qos.logback.classic.PatternLayout">
+              <Pattern>
+                  %black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable
+              </Pattern>
+          </layout>
+      </appender>
+      <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+          <file>${LOGS}/${applicationName}.log</file>
+          <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+          </encoder>
+          <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+              <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd}.%i.log
+              </fileNamePattern>
+              <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                  <maxFileSize>10MB</maxFileSize>
+              </timeBasedFileNamingAndTriggeringPolicy>
+          </rollingPolicy>
+      </appender>
+  ```
+ - Also, Logback provides support for profile based log configuration for each package or frameworks, which can be define in the same logback-spring.xml file
+ ```
+ <springProfile name="local_zone1,local_zone2">
+     <root level="info">
+         <appender-ref ref="LogStash" />
+         <appender-ref ref="Console" />
+     </root>
+     <logger name="org.springframework.*" level="debug" additivity="false">
+         <appender-ref ref="LogStash" />
+         <appender-ref ref="Console" />
+     </logger>
+ </springProfile>
+ <springProfile name="docker">
+     <root level="error">
+         <appender-ref ref="LogStash" />
+         <appender-ref ref="Console" />
+     </root>
+     <logger name="com.learning.bookstore" level="warn" additivity="false">
+         <appender-ref ref="LogStash" />
+         <appender-ref ref="Console" />
+     </logger>
+ </springProfile>
+ ```
 
 ### Logging
   - Use the Lombok annotation @Slf4j in each java classes wherever we need to write logs
@@ -494,15 +644,22 @@ To write application logs into a file
   - Use the log level 'info' whenever some new logic is started or finished with proper input or output values. Also, to log request/response values whenever system calls any external servers
   - Use the log level 'warning' in situations where the code execution might cause some side effect later
   - Use the log level 'error' in catch blocks
-  - By default, set the log level as 'error' for the ROOT log
+  - By default, set the log level as 'error' for the ROOT log for production
   - Also set the log level as info for application's root package, if there are not so many info logs exists in code
   - Note that, by default if we activate the endpoint 'logger' of spring boot actuator, then the actuator provides a REST endpoint through which we can chang the log level of any package or plugin without restarting the server. We can make this just by executing the API with required data.
-  - Enhance the logging with MDC (Mapped Diagnostic Context)
   - To set different log levels for each package use below configurations. This can also configure in 'logback-spring.xml' file
   ```
   logging.level.org.springframework.web: DEBUG
   logging.level.org.hibernate: ERROR
   ```
+  - Also, do not use message formatting, instead use structured arguments. Which helps for better search criteria support in ELK 
+  ```
+  Dont use this:
+    log.info("Processing company {} of {}", companyIndex, companyCount);
+  Use this:
+    log.info("Processing company", v("companyIndex", companyIndex), v("companyCount", companyCount));
+  ```
+  - Finally, use the Logback plugin which is provided by default in spring boot. Write a custom 'logback-spring.xml' file which will append all the provided log details into a console, or a file(In a JSON format which later can send to Logstash)
   
 ### Validation and Exception Handling
   - Use validator annotations like @NotEmpty, @NotNull, @NotBlank, @Size, @Min, @Max, @Positive etc in the domain/entity classes along with proper exception message details for the user to read

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-
     <property name="LOGS" value="/Users/prasannaadiga/Learning/Project/spring-cloud/bookstore-app/bookstore-address-service/logs" />
     <springProperty scope="context" name="applicationName" source="spring.application.name"/>
 
@@ -12,31 +11,93 @@
         </layout>
     </appender>
 
-    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="LogStash" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOGS}/${applicationName}.log</file>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
-        </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily and when the file reaches 10 MegaBytes -->
-            <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd}.%i.log
+            <fileNamePattern>${LOGS}/archived/${applicationName}-%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeCallerData>true</includeCallerData>
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <pattern>
+                    <pattern>
+                        {
+                        "level": "%level",
+                        "service": "%${applicationName}",
+                        "traceId": "%X{X-B3-TraceId:-}",
+                        "spanId": "%X{X-B3-SpanId:-}",
+                        "thread": "%thread",
+                        "class": "%logger{40}",
+                        "message": "%message"
+                        }
+                    </pattern>
+                </pattern>
+                <stackTrace>
+                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                        <maxDepthPerThrowable>30</maxDepthPerThrowable>
+                        <maxLength>2048</maxLength>
+                        <shortenedClassNameLength>20</shortenedClassNameLength>
+                        <rootCauseFirst>true</rootCauseFirst>
+                    </throwableConverter>
+                </stackTrace>
+            </providers>
+        </encoder>
     </appender>
 
-    <!-- LOG everything at INFO level -->
-    <root level="info">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
-    </root>
+    <!-- Log configuration for development environment through spring profile-->
+    <springProfile name="local_zone1,local_zone2">
+        <root level="info">
+            <appender-ref ref="LogStash" />
+            <appender-ref ref="Console" />
+        </root>
+        <logger name="org.springframework.*" level="debug" additivity="false">
+            <appender-ref ref="LogStash" />
+            <appender-ref ref="Console" />
+        </logger>
+        <logger name="org.hibernate" level="info" additivity="false">
+            <appender-ref ref="LogStash" />
+            <appender-ref ref="Console" />
+        </logger>
+        <logger name="com.netflix" level="off" additivity="false">
+            <appender-ref ref="LogStash" />
+            <appender-ref ref="Console" />
+        </logger>
+        <logger name="com.learning.bookstore" level="debug" additivity="false">
+            <appender-ref ref="LogStash" />
+            <appender-ref ref="Console" />
+        </logger>
+    </springProfile>
 
-    <!-- LOG "com.learning.cloud*" at TRACE level -->
-    <logger name="com.learning.cloud" level="trace" additivity="false">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
-    </logger>
+    <!-- Log configuration for deployment environment through spring profile-->
+    <springProfile name="docker">
+        <root level="error">
+            <appender-ref ref="LogStash" />
+            <appender-ref ref="Console" />
+        </root>
+        <logger name="org.springframework" level="warn" additivity="false">
+            <appender-ref ref="LogStash" />
+            <appender-ref ref="Console" />
+        </logger>
+        <logger name="org.hibernate" level="error" additivity="false">
+            <appender-ref ref="LogStash" />
+            <appender-ref ref="Console" />
+        </logger>
+        <logger name="com.netflix" level="off" additivity="false">
+            <appender-ref ref="LogStash" />
+            <appender-ref ref="Console" />
+        </logger>
+        <logger name="com.learning.bookstore" level="warn" additivity="false">
+            <appender-ref ref="LogStash" />
+            <appender-ref ref="Console" />
+        </logger>
+    </springProfile>
 
 </configuration>

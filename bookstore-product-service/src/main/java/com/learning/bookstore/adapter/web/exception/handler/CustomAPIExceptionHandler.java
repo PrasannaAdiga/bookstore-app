@@ -14,12 +14,16 @@ import javax.validation.ConstraintViolationException;
 import java.nio.file.NoSuchFileException;
 import java.time.LocalDateTime;
 
+/**
+ * Skipping addition of log entries only for the custom exception handler
+ * As, these logs are already logged in the corresponding exception throw classes
+ */
 @RestControllerAdvice
 @Slf4j
 public class CustomAPIExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<RestApiResponseErrorMessage> handleConstraintViolationException(final Exception exception, final HttpServletRequest request) {
-        log.error("Exception handler for ConstraintViolationException: " + exception.getMessage());
+        log.error("ConstraintViolationException: " + exception.getMessage());
         RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
@@ -27,30 +31,6 @@ public class CustomAPIExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
         return ResponseEntity.badRequest().body(restApiResponseErrorMessage);
-    }
-
-    @ExceptionHandler(ResourceFoundException.class)
-    public ResponseEntity<RestApiResponseErrorMessage> handleResourceFoundException(final Exception exception, final HttpServletRequest request) {
-        log.error("Exception handler for ResourceFoundException: " + exception.getMessage());
-        RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
-                .status(HttpStatus.FOUND.value())
-                .error("Resource already exists!")
-                .message(exception.getMessage())
-                .path(request.getRequestURI())
-                .build();
-        return new ResponseEntity<>(restApiResponseErrorMessage, HttpStatus.FOUND);
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<RestApiResponseErrorMessage> handleResourceNotFoundException(final Exception exception, final HttpServletRequest request) {
-        log.error("Exception handler for ResourceNotFoundException: " + exception.getMessage());
-        RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
-                .error("Resource not found!")
-                .message(exception.getMessage())
-                .path(request.getRequestURI())
-                .build();
-        return new ResponseEntity<>(restApiResponseErrorMessage, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -75,6 +55,28 @@ public class CustomAPIExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
         return new ResponseEntity<>(restApiResponseErrorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ResourceFoundException.class)
+    public ResponseEntity<RestApiResponseErrorMessage> handleResourceFoundException(final Exception exception, final HttpServletRequest request) {
+        RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
+                .status(HttpStatus.FOUND.value())
+                .error("Resource already exists!")
+                .message(exception.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(restApiResponseErrorMessage, HttpStatus.FOUND);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<RestApiResponseErrorMessage> handleResourceNotFoundException(final Exception exception, final HttpServletRequest request) {
+        RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Resource not found!")
+                .message(exception.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(restApiResponseErrorMessage, HttpStatus.NOT_FOUND);
     }
 
 }
