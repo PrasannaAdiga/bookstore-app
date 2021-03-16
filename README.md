@@ -543,9 +543,11 @@ To provide alert and monitoring support for all microservices
          time-to-live: 1ms
  ```
  - With the above config, now we can access the metrics details at http://<host>:<port>/actuator/metrics
+ - An example metric looks like: metric_name{labe1Name="label1Value",label2Name="label2Value",...}
  - Now, we have metrics exposed by our application, we need a way to pull them and keep a history of them through Prometheus, in order that: we can see historical data, we can see the data over time to calculate measures such as rates, we can query the data in an easy way
 
 ##### Prometheus 
+ - Prometheus provides us functions to run more elaborate queries like rate(http_server_requests_seconds_count{uri="/doit"}[5m])
  - Prometheus can be run locally through exe file or in docker container through docker-compose file
  - To run in a docker-compose file use the below one. Here we
  ```
@@ -622,8 +624,65 @@ To provide alert and monitoring support for all microservices
  - Finally, create multiple dashboards for each metric details or use any popular existing Grafana Dashboard available in the market 
 
 #### Alerting System
+To report an alarm message to configured destination through AlertManager
 
-
+ - Configure certain rules in Prometheus on the metrics data which are collected, and if the configured rules are broken, then send an alert message to either Slack, Gmail etc. Here are some examples:
+ - Memory usage greater than 95%, Number of 404 errors greater than 10% of all requests, Average response time greater than 500 ms
+ - Prometheus gives us an easy way to configure rules, which when broken will create an alert via another tool call AlertManager
+ - A rule is simply a metric, with a condition. If we wanted to create an alert for when our application has a request rate greater than 0, the rules.yml config would be:
+ ```
+ groups:
+   - name: default
+     rules:
+       - alert: RequestRate
+         expr:  rate(http_server_requests_seconds_count{uri="/doit"}[5m]) > 0
+         for: 1m
+         labels:
+           severity: high
+         annotations:
+           summary: Application receiving too many requests
+ ```
+ - Create a new config file alertmanager.yml which contains config details about Email or Slack
+ ```
+ route:
+   receiver: emailer
+ receivers:
+ - name: emailer
+   email_configs:
+   - to: <gmail-email-address>
+     from:  <gmail-email-address> 
+     smarthost: smtp.gmail.com:587 
+     auth_username: <gmail-email-address>  
+     auth_identity: <gmail-email-address>  
+     auth_password: <gmail-app-password>  
+ ```
+ - To run AlertManager through docker-compose use the below config
+ ```
+ version: "3"
+   services:
+     alertmanager:
+         image: prom/alertmanager:latest
+         ports:
+           - 9093:9093
+         volumes:
+           - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml #Pass the alert maanger config file path here
+ ```
+ - Add the details of rules.yml and configuration detail of AlertManager in prometheus.yml file
+ ```
+ scrape_configs:
+   rule_files:
+     - rules.yml
+   alerting:
+      alertmanagers:
+        - static_configs: 
+            - targets:
+                - alertmanager:9093 
+ ```
+ - Finally, access the AlertManager URL at http://localhost:9093
+ - Access the url http://localhost:9090/alerts of Prometheus. Here the new alert definition will be listed and initially its status will be 'inactive'. When we hit the mentioned API, an alert will be raised from Prometheus, so the status will be moved from inactive to pending. After the configured waiting period status will be changed to 'firing', where Prometheus will send the alert details to AlertManager, from where this message will be sent to configured destination. 
+ - So we need 3 configurations file. One for adding Prometheous scrape details, another for defineing rules for alert and final one for destination endpoint details for AlertManager
+ - Refer https://tomgregory.com/monitoring-a-spring-boot-application-part-3-rules-and-alerting/
+ 
 ---
 
 # Oauth2 and OpenID Connect 
