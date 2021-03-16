@@ -59,6 +59,8 @@ dependencies {
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-consul-all'
 
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
 	implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
 
 	implementation 'org.springdoc:springdoc-openapi-ui:1.5.2'

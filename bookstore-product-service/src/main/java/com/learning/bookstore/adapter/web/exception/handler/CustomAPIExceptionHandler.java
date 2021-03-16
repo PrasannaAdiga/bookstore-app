@@ -35,7 +35,7 @@ public class CustomAPIExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<RestApiResponseErrorMessage> handleIllegalArgumentException(final Exception exception, final HttpServletRequest request) {
-        log.error("Exception handler for IllegalArgumentException: " + exception.getMessage());
+        log.error("IllegalArgumentException: " + exception.getMessage());
         RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Illegal Argument Exception!")
@@ -47,7 +47,7 @@ public class CustomAPIExceptionHandler {
 
     @ExceptionHandler(NoSuchFileException.class)
     public ResponseEntity<RestApiResponseErrorMessage> handleNoSuchFileException(final Exception exception, final HttpServletRequest request) {
-        log.error("Exception handler for NoSuchFileException: " + exception.getMessage());
+        log.error("NoSuchFileException: " + exception.getMessage());
         RestApiResponseErrorMessage restApiResponseErrorMessage = RestApiResponseErrorMessage.builder().timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error("No such image file found!")

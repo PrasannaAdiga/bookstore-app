@@ -72,13 +72,14 @@ By Using Consul
 
 #### Consul Server
 To Create Consul Cluster using Docker follow the below steps:
-1. Type the command ‘docker run -d --name consul-1 -p 8500:8500 -e CONSUL_BIND_INTERFACE=eth0 consul’
-2. Type the command ‘docker inspect consul-1’. Copy the IP address.
-3. Type the command ‘docker run -d --name consul-2 -e CONSUL_BIND_INTERFACE=eth0 -p 8501:8500 consul agent -dev -join=172.17.0.2<REPLACE THIS BY PREVIOUSLY COPIED IP ADDRESS>’
-4. Type the command ‘docker run -d --name consul-3 -e CONSUL_BIND_INTERFACE=eth0 -p 8502:8500 consul agent -dev -join=172.17.0.2<REPLACE THIS BY PREVIOUSLY COPIED IP ADDRESS>’
-5. Test the Consul Cluster by typing the command: ‘docker exec -t consul-1 consul members’. This will list down details of all 3 Consul nodes.
-6. Access the Consul UI: http://localhost:8500/
-7. Refer: https://piotrminkowski.com/2019/11/06/microservices-with-spring-boot-spring-cloud-gateway-and-consul-cluster/
+ - Create a new network 'docker network create bookstore'
+ - Type the command ‘docker run -d --name consul-1 -p 8500:8500 --network=bookstore -e CONSUL_BIND_INTERFACE=eth0 consul’. Here we use the common network 'bookstore' where other container also runs like Prometheus so that communication between containers will be easy by using only the container name
+ - Type the command ‘docker inspect consul-1’. Copy the IP address.
+ - Type the command ‘docker run -d --name consul-2 -e CONSUL_BIND_INTERFACE=eth0 -p 8501:8500 consul agent -dev -join=172.17.0.2<REPLACE THIS BY PREVIOUSLY COPIED IP ADDRESS>’
+ - Type the command ‘docker run -d --name consul-3 -e CONSUL_BIND_INTERFACE=eth0 -p 8502:8500 consul agent -dev -join=172.17.0.2<REPLACE THIS BY PREVIOUSLY COPIED IP ADDRESS>’
+ - Test the Consul Cluster by typing the command: ‘docker exec -t consul-1 consul members’. This will list down details of all 3 Consul nodes.
+ - Access the Consul UI: http://localhost:8500/
+ - Refer: https://piotrminkowski.com/2019/11/06/microservices-with-spring-boot-spring-cloud-gateway-and-consul-cluster/
 
 #### Microservices as Consul Client
 By using Spring Cloud Consul
@@ -521,6 +522,106 @@ Search Engine to store and search all the log file records for analysis purpose
 A visual interface to search and visualize log file records, which are read from Elastic Search
 
 ## Distributed Alert and Monitoring system
+To provide alert and monitoring support for all microservices
+ - Use the plugins or tools like Spring-boot-actuator, Micrometer, Prometheus, Grafana
+ - Metric is a measurement of a value from within the application
+ - The value can be current memory usage, the number of HTTP requests, how long the HTTP requests took (latency), the number of threads in use etc
+
+#### Monitoring System
+ - Add the dependencies 'micrometer-registry-prometheus' and 'spring-boot-starter-actuator' in each micro service application
+ - Add the below configurations in application.yml
+ ```
+ management:
+   endpoints:
+     web:
+       base-path: /actuator
+       exposure.include: prometheus
+       path-mapping.prometheus: metrics
+   endpoint:
+     prometheus:
+       cache:
+         time-to-live: 1ms
+ ```
+ - With the above config, now we can access the metrics details at http://<host>:<port>/actuator/metrics
+ - Now, we have metrics exposed by our application, we need a way to pull them and keep a history of them through Prometheus, in order that: we can see historical data, we can see the data over time to calculate measures such as rates, we can query the data in an easy way
+
+##### Prometheus 
+ - Prometheus can be run locally through exe file or in docker container through docker-compose file
+ - To run in a docker-compose file use the below one. Here we
+ ```
+ version: '3.7'
+ services:
+   prometheus:
+     image: prom/prometheus:${PROMETHEUS_VERSION:-latest}
+     hostname: prometheus
+     ports:
+       - 9090:9090
+     volumes:
+       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+       - ./prometheus:/prometheus
+     networks:
+       - bookstore
+ networks:
+   bookstore:
+     name: bookstore #Run this server in the same network 'bookstore' where consul also running
+ ```
+ - In order to scrape/pull metrics details from each microservice we need to have 'prometheus.yml' config file.
+ - In this config file we can define multiple jobs to scrape metrics from multiple microservice. like:
+ ```
+ scrape_configs:
+   - job_name: 'bookstore-order-service'
+     metrics_path: '/actuator/metrics'
+     scrape_interval: 1m
+     static_configs:
+       - targets: ['consul-1:8080'] #Here give the conatiner name of the consul as both of these services are running in the same netwrok 'bookstore' and one container can access another through just container name
+ ```
+ - Or, if we use Consul as a Service Registry, then instead of defining scrape configuration for each microservice we can define Consul endpoint through 'consul_sd_configs', which will scrape automatically metrics details of all microservice which are registered in Consul 
+ ```
+ scrape_configs:
+   - job_name: 'prometheus'
+     scrape_interval: 1m
+     static_configs:
+       - targets: ['localhost:9090']
+   - job_name: 'grafana'
+     scrape_interval: 1m
+     metrics_path: '/metrics'
+     static_configs:
+       - targets: ['grafana:3000']
+   - job_name: 'consul'
+     metrics_path: '/actuator/metrics'
+     consul_sd_configs:
+       - server: '172.17.0.1:8500'
+         services: []
+ ``` 
+ - Finally, we can access Prometheus at the url http://localhost:9090 and see all the metrics which are scraped from each microservice
+
+##### Grafana
+ - Grafana can be run locally through exe file or in docker container through docker-compose file
+ - To run in a docker-compose file use the below one. Here we
+   ```
+   version: '3.7'
+   services:
+     grafana:
+       image: grafana/grafana:${GRAFANA_VERSION:-latest}
+       hostname: grafana
+       ports:
+         - 3000:3000
+       volumes:
+         - ./grafana:/var/lib/grafana
+       environment:
+         - GF_SECURITY_ADMIN_USER=admin
+         - GF_SECURITY_ADMIN_PASSWORD=admin
+       networks:
+         - bookstore
+   networks:
+     bookstore:
+       name: bookstore #Run this server in the same network 'bookstore' where Prometheus and Consul running
+   ```
+ - Once Grafana is running, access it through the url: http://localhost:3000 
+ - Connect to Prometheus DB through its IP address or domain name 'prometheus' if we run both Prometheus and Grafana in docker container
+ - Finally, create multiple dashboards for each metric details or use any popular existing Grafana Dashboard available in the market 
+
+#### Alerting System
 
 
 ---
@@ -534,7 +635,7 @@ By Using Keycloak - As a OAuth2 Authorization Server
  - In this product, we have used Embedded Keycloak along with customized themes as mentioned in the series of article in the link: https://www.baeldung.com/tag/keycloak/ 
  - By following the above link, we can implement an Embedded Keycloak Authorization server with build in support for the user registration, user login, Forgot Password, Remember Me, SSO, custom Themes and Pages etc
  - bookstore-realm.json file contains all the configuration in the json form, to create Keycloak Realm(Bookstore), Client(product-service), Roles(Admin, Buyer), Users(Admin User, Buyer User) with a password and mapped roles etc.
- 
+
 ---
 
 # Spring Boot

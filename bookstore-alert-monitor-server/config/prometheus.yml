@@ -1,0 +1,16 @@
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'grafana'
+    scrape_interval: 1m
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['grafana:3000']
+  - job_name: 'consul'
+    metrics_path: '/actuator/metrics'
+    consul_sd_configs:
+      - server: 'consul-1:8500'
+        services: []
+    
