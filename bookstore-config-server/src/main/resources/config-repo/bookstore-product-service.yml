@@ -12,6 +12,11 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+kafka-topic-config:
+  topic-name: bookstore-product-topic
+  num-of-partitions: 3
+  replication-factor: 3
+
 ---
 
 spring:

@@ -1,0 +1,21 @@
+{"namespace": "com.learning.bookstore.model.product",
+  "type": "record",
+  "name": "Product",
+  "fields": [
+    {"name": "name", "type": "string"},
+    {"name": "description", "type": "string"},
+    {"name": "price", "type": "double"},
+    {"name": "imageId", "type": "string"},
+    {"name": "availableCount", "type": "int"},
+    {"name": "category",
+        "type": {
+        "type" : "record",
+        "name" : "ProductCategory",
+            "fields" : [
+                {"name": "name", "type": "string"},
+                {"name": "description", "type": "string"}
+            ]
+        }
+    }
+  ]
+}

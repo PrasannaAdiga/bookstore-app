@@ -3,10 +3,10 @@ route:
 receivers:
 - name: emailer
   email_configs:
-  - to: <gmail_id>
-    from:  <gmail_id> 
+  - to: gpadiga.adiga@gmail.com
+    from:  gpadiga.adiga@gmail.com 
     smarthost: smtp.gmail.com:587 
-    auth_username: <gmail_id> 
-    auth_identity: <gmail_id> 
-    auth_password: <gmail_app_password>
+    auth_username: gpadiga.adiga@gmail.com 
+    auth_identity: gpadiga.adiga@gmail.com 
+    auth_password: gpevkrgfdxgaivkq
     send_resolved: true
